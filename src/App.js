@@ -1,20 +1,31 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import "./App.css";
 
-const songs = [ 
-  { name: "Gehra Hua", artist: "Shreya Ghosal", color: "#00d4ff" },
+const songs = [
+  { name: "Gehra Hua", artist: "Arijit Singh", color: "#00d4ff" },
   { name: "Ghungroo", artist: "Arijit Singh", color: "#14b8a6" },
   { name: "Dhadak", artist: "Shreya Ghosal", color: "#6366f1" },
   { name: "Shape of You", artist: "Ed Sheeran", color: "#ec4899" },
   { name: "Param Sundari", artist: "Shreya Ghosal", color: "#22c55e" },
   { name: "Main Rang Sharbaton Ka", artist: "Arijit Singh", color: "#a855f7" },
-  { name: "Dil To Pagal Hai",  artist: "Udit Narayan", color: "#f59e0b" },
+  { name: "Dil To Pagal Hai", artist: "Udit Narayan", color: "#f59e0b" },
   { name: "Zehnaseeb", artist: "Shekhar", color: "#f43f8e" },
   { name: "Mere Naam Tu", artist: "Ajay-Atul", color: "#00d4ff" },
   { name: "Titli", artist: "Shreya Ghosal", color: "#14b8a6" },
   { name: "Humnava", artist: "Papon", color: "#6366f1" },
   { name: "Deewani Mastani", artist: "Shreya Ghosal", color: "#00d4ff" },
 ];
+
+// derive unique artists with song count + accent color
+const buildArtists = () => {
+  const map = {};
+  songs.forEach((s) => {
+    if (!map[s.artist]) map[s.artist] = { name: s.artist, count: 0, color: s.color };
+    map[s.artist].count++;
+  });
+  return Object.values(map).sort((a, b) => b.count - a.count);
+};
+const ARTISTS = buildArtists();
 
 function makeFallbackSVG(name, color) {
   const letter = name.charAt(0).toUpperCase();
@@ -31,21 +42,23 @@ function makeFallbackSVG(name, color) {
 const PARTICLE_SYMBOLS = ["♪", "♫", "♩", "♬", "·", "♪", "♫", "·", "♩", "♬"];
 
 function App() {
-  // ── All state ──────────────────────────────────────────────
-  const [songIndex,   setSongIndex]   = useState(0);
-  const [isPlaying,   setIsPlaying]   = useState(false);
-  const [progress,    setProgress]    = useState(0);
-  const [darkMode,    setDarkMode]    = useState(true);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration,    setDuration]    = useState(0);
-  const [volume,      setVolume]      = useState(1);
-  const [isShuffle,   setIsShuffle]   = useState(false);
-  const [isRepeat,    setIsRepeat]    = useState(false);
-  const [imgSrc,      setImgSrc]      = useState("");
+  const [songIndex,      setSongIndex]      = useState(0);
+  const [isPlaying,      setIsPlaying]      = useState(false);
+  const [progress,       setProgress]       = useState(0);
+  const [darkMode,       setDarkMode]       = useState(true);
+  const [currentTime,    setCurrentTime]    = useState(0);
+  const [duration,       setDuration]       = useState(0);
+  const [volume,         setVolume]         = useState(1);
+  const [isShuffle,      setIsShuffle]      = useState(false);
+  const [isRepeat,       setIsRepeat]       = useState(false);
+  const [imgSrc,         setImgSrc]         = useState("");
+  // ── panel tab + artist filter + search ─────────────────────
+  const [activeTab,      setActiveTab]      = useState("songs");
+  const [selectedArtist, setSelectedArtist] = useState(null);
+  const [searchQuery,    setSearchQuery]    = useState("");
+  const searchRef = useRef(null);
 
-  // ── Refs ───────────────────────────────────────────────────
-  const audioRef    = useRef(null);
-  // Store latest values in refs so callbacks don't go stale
+  const audioRef     = useRef(null);
   const isRepeatRef  = useRef(isRepeat);
   const isShuffleRef = useRef(isShuffle);
   const songIndexRef = useRef(songIndex);
@@ -58,7 +71,36 @@ function App() {
 
   const currentSong = songs[songIndex];
 
-  // ── Helpers defined BEFORE any useEffect that uses them ───
+  // filtered song list — applies artist filter AND search query
+  const q = searchQuery.toLowerCase().trim();
+  const filteredSongs = songs
+    .map((s, i) => ({ ...s, originalIndex: i }))
+    .filter((s) => {
+      const artistMatch = selectedArtist ? s.artist === selectedArtist : true;
+      const searchMatch = q
+        ? s.name.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
+        : true;
+      return artistMatch && searchMatch;
+    });
+
+  // filtered artists list — applies search query
+  const filteredArtists = q
+    ? ARTISTS.filter((a) => a.name.toLowerCase().includes(q))
+    : ARTISTS;
+
+  // highlight matched text helper
+  const highlight = (text) => {
+    if (!q) return text;
+    const idx = text.toLowerCase().indexOf(q);
+    if (idx === -1) return text;
+    return (
+      <>
+        {text.slice(0, idx)}
+        <mark className="search-highlight">{text.slice(idx, idx + q.length)}</mark>
+        {text.slice(idx + q.length)}
+      </>
+    );
+  };
 
   const formatTime = (t) => {
     if (!t || isNaN(t)) return "0:00";
@@ -67,7 +109,6 @@ function App() {
     return `${m}:${s < 10 ? "0" + s : s}`;
   };
 
-  // nextSong — reads from refs so it's always fresh even as a stable callback
   const nextSong = useCallback(() => {
     const shuffle = isShuffleRef.current;
     const current = songIndexRef.current;
@@ -80,7 +121,7 @@ function App() {
     }
     setSongIndex(next);
     setIsPlaying(true);
-  }, []); // stable — no deps needed because we use refs
+  }, []);
 
   const prevSong = useCallback(() => {
     const audio = audioRef.current;
@@ -102,7 +143,7 @@ function App() {
 
   const handleSongEnd = useCallback(() => {
     if (!isRepeatRef.current) nextSong();
-  }, [nextSong]); // nextSong is stable, so this is stable too
+  }, [nextSong]);
 
   const onLoadedMetadata = useCallback(() => {
     const audio = audioRef.current;
@@ -118,23 +159,19 @@ function App() {
 
   const changeVolume = (e) => setVolume(parseFloat(e.target.value));
 
-  // ── Effects ────────────────────────────────────────────────
-
-  // Attach persistent audio event listeners once
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.addEventListener("timeupdate",    updateProgress);
+    audio.addEventListener("timeupdate",     updateProgress);
     audio.addEventListener("loadedmetadata", onLoadedMetadata);
-    audio.addEventListener("ended",         handleSongEnd);
+    audio.addEventListener("ended",          handleSongEnd);
     return () => {
-      audio.removeEventListener("timeupdate",    updateProgress);
+      audio.removeEventListener("timeupdate",     updateProgress);
       audio.removeEventListener("loadedmetadata", onLoadedMetadata);
-      audio.removeEventListener("ended",         handleSongEnd);
+      audio.removeEventListener("ended",          handleSongEnd);
     };
   }, [updateProgress, onLoadedMetadata, handleSongEnd]);
 
-  // Load new src when song changes
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -155,7 +192,6 @@ function App() {
     }
   }, [songIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Play / pause toggle
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -175,7 +211,6 @@ function App() {
     }
   }, [isPlaying]);
 
-  // Volume sync
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) audio.volume = volume;
@@ -183,19 +218,39 @@ function App() {
     if (slider) slider.style.setProperty("--val", volume * 100);
   }, [volume]);
 
-  // Scroll active song into view
   useEffect(() => {
     const el = document.querySelector(".song-item.active");
     if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [songIndex]);
 
-  // ── Render ─────────────────────────────────────────────────
+  // ── Artist click: switch to songs tab filtered by artist ──
+  const handleArtistClick = (artistName) => {
+    setSelectedArtist(artistName);
+    setActiveTab("songs");
+    setSearchQuery("");
+  };
+
+  // ── Clear filter ──
+  const clearArtistFilter = () => {
+    setSelectedArtist(null);
+  };
+
+  // ── Clear search ──
+  const clearSearch = () => {
+    setSearchQuery("");
+    if (searchRef.current) searchRef.current.focus();
+  };
+
+  // ── Tab switch: clear search ──
+  const handleTabSwitch = (tab) => {
+    setActiveTab(tab);
+    setSearchQuery("");
+  };
+
   return (
     <div className={`app ${darkMode ? "dark" : "light"}`}>
       <div className="app-container">
         <div className="overlay">
-
-          {/* Animated Background */}
           <div className="bg-grid" />
           <div className="bg-orb bg-orb-1" />
           <div className="bg-orb bg-orb-2" />
@@ -207,7 +262,6 @@ function App() {
             ))}
           </div>
 
-          {/* Theme Toggle */}
           <button
             className="theme-toggle"
             onClick={() => setDarkMode((d) => !d)}
@@ -217,31 +271,120 @@ function App() {
           </button>
 
           <div className="layout">
-
-            {/* PLAYLIST */}
+            {/* ── PLAYLIST PANEL ── */}
             <div className="playlist-section">
-              <div className="playlist-scroll">
-                {songs.map((song, index) => (
-                  <div
-                    key={index}
-                    className={`song-item ${index === songIndex ? "active" : ""}`}
-                    onClick={() => { setSongIndex(index); setIsPlaying(true); }}
-                  >
-                    <div className="song-num">{index + 1}</div>
-                    <div className="song-info">
-                      <div className="song-name">{song.name}</div>
-                      <div className="song-artist">{song.artist}</div>
-                    </div>
-                  </div>
-                ))}
+
+              {/* Search Bar */}
+              <div className="search-bar-wrap">
+                <span className="search-icon">⌕</span>
+                <input
+                  ref={searchRef}
+                  type="text"
+                  className="search-input"
+                  placeholder={activeTab === "songs" ? "Search songs or artists…" : "Search artists…"}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search"
+                />
+                {searchQuery && (
+                  <button className="search-clear" onClick={clearSearch} aria-label="Clear search">✕</button>
+                )}
               </div>
+
+              {/* Tab Bar */}
+              <div className="playlist-tabs">
+                <button
+                  className={`playlist-tab ${activeTab === "songs" ? "active" : ""}`}
+                  onClick={() => handleTabSwitch("songs")}
+                >
+                  Songs
+                </button>
+                <button
+                  className={`playlist-tab ${activeTab === "artists" ? "active" : ""}`}
+                  onClick={() => handleTabSwitch("artists")}
+                >
+                  Artists
+                </button>
+              </div>
+
+              {/* ── SONGS VIEW ── */}
+              {activeTab === "songs" && (
+                <>
+                  {/* Artist filter pill */}
+                  {selectedArtist && (
+                    <div className="artist-filter-pill">
+                      <span className="artist-filter-name">{selectedArtist}</span>
+                      <button className="artist-filter-clear" onClick={clearArtistFilter}>✕</button>
+                    </div>
+                  )}
+
+                  <div className="playlist-scroll">
+                    {filteredSongs.length === 0 ? (
+                      <div className="empty-state">
+                        <div className="empty-icon">♪</div>
+                        <div className="empty-text">No songs found</div>
+                        <div className="empty-sub">Try a different search</div>
+                      </div>
+                    ) : (
+                      filteredSongs.map((song) => (
+                        <div
+                          key={song.originalIndex}
+                          className={`song-item ${song.originalIndex === songIndex ? "active" : ""}`}
+                          onClick={() => { setSongIndex(song.originalIndex); setIsPlaying(true); }}
+                        >
+                          <div className="song-num">{song.originalIndex + 1}</div>
+                          <div className="song-info">
+                            <div className="song-name">{highlight(song.name)}</div>
+                            <div className="song-artist">{highlight(song.artist)}</div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* ── ARTISTS VIEW ── */}
+              {activeTab === "artists" && (
+                <div className="artists-scroll">
+                  {filteredArtists.length === 0 ? (
+                    <div className="empty-state">
+                      <div className="empty-icon">♪</div>
+                      <div className="empty-text">No artists found</div>
+                      <div className="empty-sub">Try a different search</div>
+                    </div>
+                  ) : (
+                    filteredArtists.map((artist) => {
+                      const initials = artist.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+                      const maxCount = ARTISTS[0].count;
+                      const barWidth = Math.round((artist.count / maxCount) * 100);
+                      return (
+                        <div
+                          key={artist.name}
+                          className="artist-card"
+                          onClick={() => handleArtistClick(artist.name)}
+                          style={{ "--artist-color": artist.color }}
+                        >
+                          <div className="artist-avatar">{initials}</div>
+                          <div className="artist-meta">
+                            <div className="artist-card-name">{highlight(artist.name)}</div>
+                            <div className="artist-song-count">{artist.count} {artist.count === 1 ? "song" : "songs"}</div>
+                            <div className="artist-bar-track">
+                              <div className="artist-bar-fill" style={{ width: `${barWidth}%` }} />
+                            </div>
+                          </div>
+                          <div className="artist-arrow">›</div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* PLAYER */}
+            {/* ── PLAYER ── */}
             <div className={`player-section ${isPlaying ? "playing" : ""}`}>
               <div className="player-card">
-
-                {/* Album Art */}
                 <div className="album-container">
                   <div className="album-art">
                     <div className="album-ring" />
@@ -257,13 +400,17 @@ function App() {
                   </div>
                 </div>
 
-                {/* Song Info */}
                 <div className="song-details">
                   <h1 className="song-title">{currentSong.name}</h1>
-                  <p className="song-artist-name">{currentSong.artist}</p>
+                  <p
+                    className="song-artist-name clickable-artist"
+                    onClick={() => handleArtistClick(currentSong.artist)}
+                    title={`Filter by ${currentSong.artist}`}
+                  >
+                    {currentSong.artist}
+                  </p>
                 </div>
 
-                {/* Progress */}
                 <div className="progress-section">
                   <div
                     className="progress-bar-container"
@@ -282,24 +429,14 @@ function App() {
                   </div>
                 </div>
 
-                {/* Waveform */}
                 <div className={`waveform ${isPlaying ? "active" : ""}`}>
                   {[...Array(22)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="wave-bar"
-                      style={{ animationDelay: `${i * 0.06}s` }}
-                    />
+                    <div key={i} className="wave-bar" style={{ animationDelay: `${i * 0.06}s` }} />
                   ))}
                 </div>
 
-                {/* Controls */}
                 <div className="controls-section">
-                  <button
-                    className={`control-btn ${isShuffle ? "active" : ""}`}
-                    onClick={() => setIsShuffle((s) => !s)}
-                    title="Shuffle"
-                  >
+                  <button className={`control-btn ${isShuffle ? "active" : ""}`} onClick={() => setIsShuffle((s) => !s)} title="Shuffle">
                     <span>🔀</span>
                   </button>
                   <button className="control-btn prev-btn" onClick={prevSong} title="Previous">
@@ -315,16 +452,11 @@ function App() {
                   <button className="control-btn next-btn" onClick={nextSong} title="Next">
                     <span>⏭</span>
                   </button>
-                  <button
-                    className={`control-btn ${isRepeat ? "active" : ""}`}
-                    onClick={() => setIsRepeat((r) => !r)}
-                    title="Repeat"
-                  >
+                  <button className={`control-btn ${isRepeat ? "active" : ""}`} onClick={() => setIsRepeat((r) => !r)} title="Repeat">
                     <span>🔁</span>
                   </button>
                 </div>
 
-                {/* Volume */}
                 <div className="volume-section">
                   <span className="volume-icon">
                     {volume === 0 ? "🔇" : volume < 0.5 ? "🔉" : "🔊"}
@@ -337,14 +469,11 @@ function App() {
                   />
                   <span className="volume-percent">{Math.round(volume * 100)}%</span>
                 </div>
-
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Audio — no src prop, managed via ref */}
       <audio ref={audioRef} loop={isRepeat} />
     </div>
   );
