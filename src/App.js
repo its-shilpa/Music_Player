@@ -112,6 +112,7 @@ function makeArtistFallbackSVG(name, color) {
 
 const PARTICLE_SYMBOLS = ["♪","♫","♩","♬","·","♪","♫","·","♩","♬"];
 
+
 // ── Reusable song thumbnail with jpg → SVG fallback ─────────
 function SongThumb({ song, className = "" }) {
   const [src, setSrc] = useState(`/images/${song.name}.jpg`);
