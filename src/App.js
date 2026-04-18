@@ -65,7 +65,7 @@ const songs = [
 ];
 
 const GENRES = ["All", "Bollywood", "Romantic", "Pop", "Classic", "Sufi"];
-const SONGS_PER_PAGE = 15;
+const SONGS_PER_PAGE = 14;
 
 const ARTIST_PHOTOS = {
   "Shreya Ghoshal":      "/images/shreya-ghoshal.webp",
