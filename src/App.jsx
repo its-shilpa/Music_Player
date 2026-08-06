@@ -1,68 +1,69 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import "./App.css";
+import { searchSongs } from "./api/musicApi";
 
-const songs = [
-  { id: 0,  name: "Gehra Hua",                 artists: ["Arijit Singh"],                           color: "#00d4ff", genre: "Romantic" },
-  { id: 1,  name: "Ghungroo",                  artists: ["Arijit Singh"],                           color: "#14b8a6", genre: "Pop" },
-  { id: 2,  name: "Dhadak",                    artists: ["Shreya Ghoshal"],                         color: "#6366f1", genre: "Romantic" },
-  { id: 3,  name: "Param Sundari",             artists: ["Shreya Ghoshal"],                         color: "#22c55e", genre: "Pop" },
-  { id: 4,  name: "Main Rang Sharbaton Ka",    artists: ["Arijit Singh", "Shreya Ghoshal"],         color: "#a855f7", genre: "Bollywood" },
-  { id: 5,  name: "Dil To Pagal Hai",          artists: ["Udit Narayan"],                           color: "#f59e0b", genre: "Classic" },
-  { id: 6,  name: "Zehnaseeb",                 artists: ["Shekhar"],                                color: "#f43f8e", genre: "Romantic" },
-  { id: 7,  name: "Mere Naam Tu",              artists: ["Ajay-Atul"],                              color: "#00d4ff", genre: "Bollywood" },
-  { id: 8,  name: "Titli",                     artists: ["Shreya Ghoshal"],                         color: "#14b8a6", genre: "Romantic" },
-  { id: 9,  name: "Main Yahaan Hoon",          artists: ["Udit Narayan"],                           color: "#00d4ff", genre: "Romantic" },
-  { id: 10, name: "Rozana",                    artists: ["Shreya Ghoshal"],                         color: "#f59e0b", genre: "Romantic" },
-  { id: 11, name: "Raabta",                    artists: ["Arijit Singh"],                           color: "#00d4ff", genre: "Bollywood" },
-  { id: 12, name: "Mareez-E-Ishq",             artists: ["Arijit Singh"],                           color: "#f43f8e", genre: "Romantic" },
-  { id: 13, name: "Saathiya",                  artists: ["Sonu Nigam"],                             color: "#00d4ff", genre: "Romantic" },
-  { id: 14, name: "Pehla Nasha Pehla",         artists: ["Udit Narayan"],                           color: "#00d4ff", genre: "Romantic" },
-  { id: 15, name: "Sooraj Dooba Hain",         artists: ["Arijit Singh"],                           color: "#14b8a6", genre: "Pop" },
-  { id: 16, name: "Humnava",                   artists: ["Papon"],                                  color: "#6366f1", genre: "Sufi" },
-  { id: 17, name: "Khairiyat",                 artists: ["Arijit Singh"],                           color: "#6366f1", genre: "Romantic" },
-  { id: 18, name: "Baatein Ye Kabhi Na",       artists: ["Arijit Singh"],                           color: "#ec4899", genre: "Bollywood" },
-  { id: 19, name: "Jugraafiya",                artists: ["Shreya Ghoshal", "Udit Narayan"],         color: "#ec4899", genre: "Bollywood" },
-  { id: 20, name: "Tum Hi Ho",                 artists: ["Arijit Singh"],                           color: "#22c55e", genre: "Romantic" },
-  { id: 21, name: "Kaho Naa Pyaar Hai",        artists: ["Udit Narayan"],                           color: "#22c55e", genre: "Pop" },
-  { id: 22, name: "Humdard",                   artists: ["Arijit Singh"],                           color: "#a855f7", genre: "Romantic" },
-  { id: 23, name: "Deewani Mastani",           artists: ["Shreya Ghoshal"],                         color: "#00d4ff", genre: "Classic" },
-  { id: 24, name: "Tu Jaane Na",               artists: ["Arijit Singh"],                           color: "#f43f8e", genre: "Romantic" },
-  { id: 25, name: "Sathiya",                   artists: ["Shreya Ghoshal"],                         color: "#6366f1", genre: "Romantic" },
-  { id: 26, name: "Moh Moh Ke Dhaage",         artists: ["Papon"],                                  color: "#00d4ff", genre: "Classic" },
-  { id: 27, name: "Shape of You",              artists: ["Ed Sheeran"],                             color: "#ec4899", genre: "Pop" },
-  { id: 28, name: "Koi Mil Gaya",              artists: ["Udit Narayan"],                           color: "#f43f8e", genre: "Romantic" },
-  { id: 29, name: "Hawayein",                  artists: ["Arijit Singh"],                           color: "#00d4ff", genre: "Bollywood" },
-  { id: 30, name: "Jeene Laga Hoon",           artists: ["Shreya Ghoshal", "Atif Aslam"],          color: "#14b8a6", genre: "Romantic" },
-  { id: 31, name: "Kalank",                    artists: ["Arijit Singh"],                           color: "#f59e0b", genre: "Classic" },
-  { id: 32, name: "Piya O Re Piya",            artists: ["Shreya Ghoshal", "Atif Aslam"],          color: "#6366f1", genre: "Sufi" },
-  { id: 33, name: "Dil Meri Na Sune",          artists: ["Atif Aslam"],                             color: "#00d4ff", genre: "Romantic" },
-  { id: 34, name: "Abhi Mujh Mein Kahin",      artists: ["Sonu Nigam", "Ajay-Atul"],               color: "#f59e0b", genre: "Classic" },
-  { id: 35, name: "Tumhi Dekho Naa",           artists: ["Sonu Nigam"],                             color: "#00d4ff", genre: "Romantic" },
-  { id: 36, name: "Ishq Wala Love",            artists: ["Shekhar"],                                color: "#14b8a6", genre: "Bollywood" },
-  { id: 37, name: "Kal Ho Naa Ho",             artists: ["Sonu Nigam"],                             color: "#f43f8e", genre: "Romantic" },
-  { id: 38, name: "Chand Chhupa Badal Mein",   artists: ["Udit Narayan"],                           color: "#f43f8e", genre: "Romantic" },
-  { id: 39, name: "Main Agar Kahoon",          artists: ["Sonu Nigam", "Shreya Ghoshal"],           color: "#00d4ff", genre: "Romantic" },
-  { id: 40, name: "Tumse Milke Dilka Jo Haal", artists: ["Sonu Nigam"],                             color: "#14b8a6", genre: "Bollywood" },
-  { id: 41, name: "Bin Tere",                  artists: ["Shekhar"],                                color: "#f43f8e", genre: "Romantic" },
-  { id: 42, name: "Aisa Deewana",              artists: ["Sonu Nigam"],                             color: "#6366f1", genre: "Romantic" },
-  { id: 43, name: "Kya Mujhe Pyar",            artists: ["KK"],                                     color: "#ec4899", genre: "Pop" },
-  { id: 44, name: "Tu Hi Meri Shab",           artists: ["KK"],                                     color: "#22c55e", genre: "Bollywood" },
-  { id: 45, name: "Meherbaan",                 artists: ["Shekhar"],                                color: "#f59e0b", genre: "Pop" },
-  { id: 46, name: "Labon Ko",                  artists: ["KK"],                                     color: "#a855f7", genre: "Romantic" },
-  { id: 47, name: "Jaadu Teri Nazar",          artists: ["Udit Narayan"],                           color: "#22c55e", genre: "Bollywood" },
-  { id: 48, name: "Dil Ibaadat",               artists: ["KK"],                                     color: "#f59e0b", genre: "Romantic" },
-  { id: 49, name: "Bol Na Halke Halke",        artists: ["Rahat Fateh Ali Khan"],                   color: "#00d4ff", genre: "Bollywood" },
-  { id: 50, name: "Tujhe Sochta Hoon",         artists: ["KK"],                                     color: "#f43f8e", genre: "Romantic" },
-  { id: 51, name: "Tere Sang Yaara",           artists: ["Atif Aslam"],                             color: "#6366f1", genre: "Romantic" },
-  { id: 52, name: "Surili Akhiyon Wale",       artists: ["Rahat Fateh Ali Khan"],                   color: "#14b8a6", genre: "Sufi" },
-  { id: 53, name: "Tum Jo Aaye",               artists: ["Rahat Fateh Ali Khan"],                   color: "#14b8a6", genre: "Sufi" },
-  { id: 54, name: "Mehndi Laga Ke Rakhna",     artists: ["Udit Narayan"],                           color: "#6366f1", genre: "Classic" },
-  { id: 55, name: "Tere Mast Mast Do Nain",    artists: ["Rahat Fateh Ali Khan", "Shreya Ghoshal"], color: "#00d4ff", genre: "Classic" },
-  { id: 56, name: "Khamoshiyan",               artists: ["Arijit Singh"],                           color: "#f43f8e", genre: "Bollywood" },
-  { id: 57, name: "Teri Ore",                  artists: ["Rahat Fateh Ali Khan", "Shreya Ghoshal"], color: "#00d4ff", genre: "Sufi" },
-  { id: 58, name: "Pehli Baar",                artists: ["Ajay-Atul"],                              color: "#6366f1", genre: "Romantic" },
-  { id: 59, name: "Dagabaaz Re Dabangg",       artists: ["Rahat Fateh Ali Khan", "Shreya Ghoshal"], color: "#f59e0b", genre: "Sufi" },
-];
+// const songs = [
+//   { id: 0,  name: "Gehra Hua",                 artists: ["Arijit Singh"],                           color: "#00d4ff", genre: "Romantic" },
+//   { id: 1,  name: "Ghungroo",                  artists: ["Arijit Singh"],                           color: "#14b8a6", genre: "Pop" },
+//   { id: 2,  name: "Dhadak",                    artists: ["Shreya Ghoshal"],                         color: "#6366f1", genre: "Romantic" },
+//   { id: 3,  name: "Param Sundari",             artists: ["Shreya Ghoshal"],                         color: "#22c55e", genre: "Pop" },
+//   { id: 4,  name: "Main Rang Sharbaton Ka",    artists: ["Arijit Singh", "Shreya Ghoshal"],         color: "#a855f7", genre: "Bollywood" },
+//   { id: 5,  name: "Dil To Pagal Hai",          artists: ["Udit Narayan"],                           color: "#f59e0b", genre: "Classic" },
+//   { id: 6,  name: "Zehnaseeb",                 artists: ["Shekhar"],                                color: "#f43f8e", genre: "Romantic" },
+//   { id: 7,  name: "Mere Naam Tu",              artists: ["Ajay-Atul"],                              color: "#00d4ff", genre: "Bollywood" },
+//   { id: 8,  name: "Titli",                     artists: ["Shreya Ghoshal"],                         color: "#14b8a6", genre: "Romantic" },
+//   { id: 9,  name: "Main Yahaan Hoon",          artists: ["Udit Narayan"],                           color: "#00d4ff", genre: "Romantic" },
+//   { id: 10, name: "Rozana",                    artists: ["Shreya Ghoshal"],                         color: "#f59e0b", genre: "Romantic" },
+//   { id: 11, name: "Raabta",                    artists: ["Arijit Singh"],                           color: "#00d4ff", genre: "Bollywood" },
+//   { id: 12, name: "Mareez-E-Ishq",             artists: ["Arijit Singh"],                           color: "#f43f8e", genre: "Romantic" },
+//   { id: 13, name: "Saathiya",                  artists: ["Sonu Nigam"],                             color: "#00d4ff", genre: "Romantic" },
+//   { id: 14, name: "Pehla Nasha Pehla",         artists: ["Udit Narayan"],                           color: "#00d4ff", genre: "Romantic" },
+//   { id: 15, name: "Sooraj Dooba Hain",         artists: ["Arijit Singh"],                           color: "#14b8a6", genre: "Pop" },
+//   { id: 16, name: "Humnava",                   artists: ["Papon"],                                  color: "#6366f1", genre: "Sufi" },
+//   { id: 17, name: "Khairiyat",                 artists: ["Arijit Singh"],                           color: "#6366f1", genre: "Romantic" },
+//   { id: 18, name: "Baatein Ye Kabhi Na",       artists: ["Arijit Singh"],                           color: "#ec4899", genre: "Bollywood" },
+//   { id: 19, name: "Jugraafiya",                artists: ["Shreya Ghoshal", "Udit Narayan"],         color: "#ec4899", genre: "Bollywood" },
+//   { id: 20, name: "Tum Hi Ho",                 artists: ["Arijit Singh"],                           color: "#22c55e", genre: "Romantic" },
+//   { id: 21, name: "Kaho Naa Pyaar Hai",        artists: ["Udit Narayan"],                           color: "#22c55e", genre: "Pop" },
+//   { id: 22, name: "Humdard",                   artists: ["Arijit Singh"],                           color: "#a855f7", genre: "Romantic" },
+//   { id: 23, name: "Deewani Mastani",           artists: ["Shreya Ghoshal"],                         color: "#00d4ff", genre: "Classic" },
+//   { id: 24, name: "Tu Jaane Na",               artists: ["Arijit Singh"],                           color: "#f43f8e", genre: "Romantic" },
+//   { id: 25, name: "Sathiya",                   artists: ["Shreya Ghoshal"],                         color: "#6366f1", genre: "Romantic" },
+//   { id: 26, name: "Moh Moh Ke Dhaage",         artists: ["Papon"],                                  color: "#00d4ff", genre: "Classic" },
+//   { id: 27, name: "Shape of You",              artists: ["Ed Sheeran"],                             color: "#ec4899", genre: "Pop" },
+//   { id: 28, name: "Koi Mil Gaya",              artists: ["Udit Narayan"],                           color: "#f43f8e", genre: "Romantic" },
+//   { id: 29, name: "Hawayein",                  artists: ["Arijit Singh"],                           color: "#00d4ff", genre: "Bollywood" },
+//   { id: 30, name: "Jeene Laga Hoon",           artists: ["Shreya Ghoshal", "Atif Aslam"],          color: "#14b8a6", genre: "Romantic" },
+//   { id: 31, name: "Kalank",                    artists: ["Arijit Singh"],                           color: "#f59e0b", genre: "Classic" },
+//   { id: 32, name: "Piya O Re Piya",            artists: ["Shreya Ghoshal", "Atif Aslam"],          color: "#6366f1", genre: "Sufi" },
+//   { id: 33, name: "Dil Meri Na Sune",          artists: ["Atif Aslam"],                             color: "#00d4ff", genre: "Romantic" },
+//   { id: 34, name: "Abhi Mujh Mein Kahin",      artists: ["Sonu Nigam", "Ajay-Atul"],               color: "#f59e0b", genre: "Classic" },
+//   { id: 35, name: "Tumhi Dekho Naa",           artists: ["Sonu Nigam"],                             color: "#00d4ff", genre: "Romantic" },
+//   { id: 36, name: "Ishq Wala Love",            artists: ["Shekhar"],                                color: "#14b8a6", genre: "Bollywood" },
+//   { id: 37, name: "Kal Ho Naa Ho",             artists: ["Sonu Nigam"],                             color: "#f43f8e", genre: "Romantic" },
+//   { id: 38, name: "Chand Chhupa Badal Mein",   artists: ["Udit Narayan"],                           color: "#f43f8e", genre: "Romantic" },
+//   { id: 39, name: "Main Agar Kahoon",          artists: ["Sonu Nigam", "Shreya Ghoshal"],           color: "#00d4ff", genre: "Romantic" },
+//   { id: 40, name: "Tumse Milke Dilka Jo Haal", artists: ["Sonu Nigam"],                             color: "#14b8a6", genre: "Bollywood" },
+//   { id: 41, name: "Bin Tere",                  artists: ["Shekhar"],                                color: "#f43f8e", genre: "Romantic" },
+//   { id: 42, name: "Aisa Deewana",              artists: ["Sonu Nigam"],                             color: "#6366f1", genre: "Romantic" },
+//   { id: 43, name: "Kya Mujhe Pyar",            artists: ["KK"],                                     color: "#ec4899", genre: "Pop" },
+//   { id: 44, name: "Tu Hi Meri Shab",           artists: ["KK"],                                     color: "#22c55e", genre: "Bollywood" },
+//   { id: 45, name: "Meherbaan",                 artists: ["Shekhar"],                                color: "#f59e0b", genre: "Pop" },
+//   { id: 46, name: "Labon Ko",                  artists: ["KK"],                                     color: "#a855f7", genre: "Romantic" },
+//   { id: 47, name: "Jaadu Teri Nazar",          artists: ["Udit Narayan"],                           color: "#22c55e", genre: "Bollywood" },
+//   { id: 48, name: "Dil Ibaadat",               artists: ["KK"],                                     color: "#f59e0b", genre: "Romantic" },
+//   { id: 49, name: "Bol Na Halke Halke",        artists: ["Rahat Fateh Ali Khan"],                   color: "#00d4ff", genre: "Bollywood" },
+//   { id: 50, name: "Tujhe Sochta Hoon",         artists: ["KK"],                                     color: "#f43f8e", genre: "Romantic" },
+//   { id: 51, name: "Tere Sang Yaara",           artists: ["Atif Aslam"],                             color: "#6366f1", genre: "Romantic" },
+//   { id: 52, name: "Surili Akhiyon Wale",       artists: ["Rahat Fateh Ali Khan"],                   color: "#14b8a6", genre: "Sufi" },
+//   { id: 53, name: "Tum Jo Aaye",               artists: ["Rahat Fateh Ali Khan"],                   color: "#14b8a6", genre: "Sufi" },
+//   { id: 54, name: "Mehndi Laga Ke Rakhna",     artists: ["Udit Narayan"],                           color: "#6366f1", genre: "Classic" },
+//   { id: 55, name: "Tere Mast Mast Do Nain",    artists: ["Rahat Fateh Ali Khan", "Shreya Ghoshal"], color: "#00d4ff", genre: "Classic" },
+//   { id: 56, name: "Khamoshiyan",               artists: ["Arijit Singh"],                           color: "#f43f8e", genre: "Bollywood" },
+//   { id: 57, name: "Teri Ore",                  artists: ["Rahat Fateh Ali Khan", "Shreya Ghoshal"], color: "#00d4ff", genre: "Sufi" },
+//   { id: 58, name: "Pehli Baar",                artists: ["Ajay-Atul"],                              color: "#6366f1", genre: "Romantic" },
+//   { id: 59, name: "Dagabaaz Re Dabangg",       artists: ["Rahat Fateh Ali Khan", "Shreya Ghoshal"], color: "#f59e0b", genre: "Sufi" },
+// ];
 
 const GENRES = ["All", "Bollywood", "Romantic", "Pop", "Classic", "Sufi"];
 const SONGS_PER_PAGE = 15;
@@ -81,17 +82,25 @@ const ARTIST_PHOTOS = {
   "Ed Sheeran":          "/images/ed-seeran.webp",
 };
 
-const buildArtists = () => {
+const buildArtists = (songs) => {
   const map = {};
-  songs.forEach((s) => {
-    s.artists.forEach((name) => {
-      if (!map[name]) map[name] = { name, count: 0, color: s.color };
-      map[name].count++;
+
+  songs.forEach((song) => {
+    song.artists.forEach((artist) => {
+      if (!map[artist]) {
+        map[artist] = {
+          name: artist,
+          count: 0,
+          color: song.color,
+        };
+      }
+
+      map[artist].count++;
     });
   });
-  return Object.values(map).sort((a, b) => b.count - a.count);
-};
-const ARTISTS = buildArtists();
+
+    return Object.values(map).sort((a, b) => b.count - a.count);
+  };
 
 // ── SVG fallbacks
 function makeFallbackSVG(name, color) {
@@ -115,14 +124,20 @@ const PARTICLE_SYMBOLS = ["♪","♫","♩","♬","·","♪","♫","·","♩","�
 
 // ── Reusable song thumbnail with jpg → SVG fallback
 function SongThumb({ song, className = "" }) {
-  const [src, setSrc] = useState(`/images/${song.name}.jpg`);
-  useEffect(() => { setSrc(`/images/${song.name}.jpg`); }, [song.name]);
+  const [src, setSrc] = useState(song.image);
+
+  useEffect(() => {
+    setSrc(song.image);
+  }, [song.image]);
+
   return (
     <img
       src={src}
       alt={song.name}
       className={className}
-      onError={() => setSrc(makeFallbackSVG(song.name, song.color))}
+      onError={() =>
+        setSrc(makeFallbackSVG(song.name, song.color))
+      }
     />
   );
 }
@@ -192,6 +207,23 @@ function SongRow({ song, isActive, onPlay }) {
 // APP
 // ════════════════════════════════════════════════════════════
 export default function App() {
+
+  const [songs, setSongs] = useState([]);
+
+  const [view, setView] = useState("home");
+  const [songIndex, setSongIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    async function loadSongs(){
+        const result = await searchSongs("arijit");
+        setSongs(result);
+    }
+    loadSongs();
+},[]);
+const artists = buildArtists(songs);
+
   // ── Global player state ────────────────────────────────────
   const [view,        setView]        = useState("home");
   const [songIndex,   setSongIndex]   = useState(0);
@@ -359,7 +391,7 @@ export default function App() {
     const audio = audioRef.current;
     if (!audio) return;
     audio.pause();
-    audio.src = `/music/${currentSong.name}.mp3`;
+    audio.src = currentSong.preview;
     audio.load();
     setProgress(0); setCurrentTime(0); setDuration(0);
     setImgSrc(`/images/${currentSong.name}.jpg`);
@@ -482,7 +514,7 @@ export default function App() {
                   <div className="section-block">
                     <h2 className="section-title">Artists</h2>
                     <div className="artists-row">
-                      {ARTISTS.map(artist => (
+                      {artists.map(artist => (
                         <ArtistBubble key={artist.name} artist={artist} onClick={() => setSelectedArtist(artist.name)} />
                       ))}
                     </div>
