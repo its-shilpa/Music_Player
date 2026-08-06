@@ -152,7 +152,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   );
 }
 
-// ── Artist bubble with photo
+// ── Artist bubble with profile picture
 function ArtistBubble({ artist, onClick }) {
   const [photoSrc, setPhotoSrc] = useState(ARTIST_PHOTOS[artist.name] || makeArtistFallbackSVG(artist.name, artist.color));
   return (
