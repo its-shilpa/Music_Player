@@ -93,7 +93,7 @@ const buildArtists = () => {
 };
 const ARTISTS = buildArtists();
 
-// ── SVG fallbacks ───────────────────────────────────────────
+// ── SVG fallbacks
 function makeFallbackSVG(name, color) {
   const letter = name.charAt(0).toUpperCase();
   const colorMap = { "#a855f7":"#f43f8e","#f59e0b":"#a855f7","#f43f8e":"#00d4ff","#00d4ff":"#a855f7","#14b8a6":"#6366f1","#6366f1":"#ec4899","#ec4899":"#14b8a6","#22c55e":"#00d4ff" };
@@ -113,7 +113,7 @@ function makeArtistFallbackSVG(name, color) {
 const PARTICLE_SYMBOLS = ["♪","♫","♩","♬","·","♪","♫","·","♩","♬"];
 
 
-// ── Reusable song thumbnail with jpg → SVG fallback ─────────
+// ── Reusable song thumbnail with jpg → SVG fallback
 function SongThumb({ song, className = "" }) {
   const [src, setSrc] = useState(`/images/${song.name}.jpg`);
   useEffect(() => { setSrc(`/images/${song.name}.jpg`); }, [song.name]);
