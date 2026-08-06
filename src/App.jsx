@@ -128,7 +128,7 @@ function SongThumb({ song, className = "" }) {
 }
 
 
-// ── Pagination ───────────────────────────────────────────────
+// ── Pagination
 function Pagination({ currentPage, totalPages, onPageChange }) {
   if (totalPages <= 1) return null;
   const pages = [];
@@ -152,7 +152,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   );
 }
 
-// ── Artist bubble with photo ─────────────────────────────────
+// ── Artist bubble with photo
 function ArtistBubble({ artist, onClick }) {
   const [photoSrc, setPhotoSrc] = useState(ARTIST_PHOTOS[artist.name] || makeArtistFallbackSVG(artist.name, artist.color));
   return (
@@ -171,7 +171,7 @@ function ArtistBubble({ artist, onClick }) {
   );
 }
 
-// ── Song row ─────────────────────────────────────────────────
+// ── Song row
 function SongRow({ song, isActive, onPlay }) {
   return (
     <div className={`song-row ${isActive ? "active" : ""}`} onClick={() => onPlay(song.id)}>
