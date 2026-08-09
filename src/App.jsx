@@ -276,9 +276,9 @@ const artists = buildArtists(songs);
   useEffect(() => { setHomePage(1); }, [searchQuery, activeGenre, selectedArtist]);
 
   // ── Derived: related songs on player page ─────────────────
-  const relatedSongs = songs.filter(
-    (s) => s.id !== currentSong.id && s.artists.some(a => currentSong.artists.includes(a))
-  );
+  const relatedSongs = currentSong ? songs.filter(
+    (s) => s.id !== currentSong.id && s.artists.some((a) => currentSong.artists.includes(a))
+  ) : [];
   const relatedTotalPages = Math.ceil(relatedSongs.length / SONGS_PER_PAGE);
   const pagedRelatedSongs = relatedSongs.slice((relatedPage - 1) * SONGS_PER_PAGE, relatedPage * SONGS_PER_PAGE);
   useEffect(() => { setRelatedPage(1); }, [songIndex]);
@@ -590,7 +590,7 @@ const artists = buildArtists(songs);
           )}
 
           {/* ════ PLAYER VIEW ════ */}
-          {view === "player" && (
+          {view === "player" && currentSong && (
             <div className="player-view">
               <div className="player-nav">
                 <button className="player-back-btn" onClick={goHome}>← Home</button>

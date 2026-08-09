@@ -9,8 +9,8 @@ export const searchSongs = async (query) => {
     id: song.id,
     name: song.title,
     artists: [song.artist.name],
-    genre: "Pop", // temporary
-    color: "#8B5CF6", // temporary
+    genre: "Pop", 
+    color: "#8B5CF6",
     image: song.album.cover_big,
     preview: song.preview,
     }));
