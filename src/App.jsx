@@ -210,11 +210,6 @@ export default function App() {
 
   const [songs, setSongs] = useState([]);
 
-  const [view, setView] = useState("home");
-  const [songIndex, setSongIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-
   useEffect(() => {
     async function loadSongs(){
         const result = await searchSongs("arijit");
@@ -264,7 +259,7 @@ const artists = buildArtists(songs);
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
   useEffect(() => { queueRef.current     = queue;     }, [queue]);
 
-  const currentSong = songs[songIndex];
+  const currentSong = songs[songIndex] ?? null;
 
   // ── Derived: full home song list (for building queue) ─────
   const q = searchQuery.toLowerCase().trim();
