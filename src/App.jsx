@@ -349,7 +349,7 @@ export default function App() {
 
   const currentSong = songs[songIndex] ?? null;
 
-  // ── Derived: full home song list (for building queue) ─────
+  // ── Derived: full home song list (for building queue) 
   const q = searchQuery.toLowerCase().trim();
   const homeSongs = songs.filter((s) => {
     const genreMatch = activeGenre === "All" || s.genre === activeGenre;
@@ -371,7 +371,7 @@ export default function App() {
     setHomePage(1);
   }, [searchQuery, activeGenre, selectedArtist]);
 
-  // ── Derived: related songs on player page ─────────────────
+  // ── Derived: related songs on player page 
   const relatedSongs = currentSong
     ? songs.filter(
         (s) =>
