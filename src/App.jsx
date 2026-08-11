@@ -317,13 +317,13 @@ export default function App() {
   const [homePage, setHomePage] = useState(1);
   const [relatedPage, setRelatedPage] = useState(1);
 
-  // ── Queue context ──────────────────────────────────────────
+  // ── Queue context 
   // Stores the ordered list of song IDs the user was browsing when they hit play.
   // nextSong/prevSong will walk through this queue.
   // null = walk through all songs (default).
   const [queue, setQueue] = useState(null); // number[] | null
 
-  // ── Refs ───────────────────────────────────────────────────
+  // ── Refs
   const audioRef = useRef(null);
   const isRepeatRef = useRef(isRepeat);
   const isShuffleRef = useRef(isShuffle);
@@ -349,7 +349,7 @@ export default function App() {
 
   const currentSong = songs[songIndex] ?? null;
 
-  // ── Derived: full home song list (for building queue) 
+  // ── Derived: full home song list
   const q = searchQuery.toLowerCase().trim();
   const homeSongs = songs.filter((s) => {
     const genreMatch = activeGenre === "All" || s.genre === activeGenre;
