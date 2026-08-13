@@ -268,7 +268,6 @@ function SongRow({ song, isActive, onPlay }) {
 
 // ════════════════════════════════════════════════════════════
 // APP
-// ════════════════════════════════════════════════════════════
 export default function App() {
   const [songs, setSongs] = useState([]);
 
@@ -321,7 +320,7 @@ export default function App() {
   // Stores the ordered list of song IDs the user was browsing when they hit play.
   // nextSong/prevSong will walk through this queue.
   // null = walk through all songs (default).
-  const [queue, setQueue] = useState(null); // number[] | null
+  const [queue, setQueue] = useState(null); 
 
   // ── Refs
   const audioRef = useRef(null);
