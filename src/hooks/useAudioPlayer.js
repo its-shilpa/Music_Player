@@ -55,35 +55,29 @@ export function useAudioPlayer(songs) {
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
   useEffect(() => { queueRef.current = queue; }, [queue]);
 
-  const currentSong = songs[songIndex] ?? null;
+  const currentSong = songs.find((s) => s.id === songIndex) ?? null;
 
+  // "queue" and "songIndex" both store SONG IDS (not array positions) -
+  // iTunes ids are arbitrary large numbers, unlike your old hardcoded
+  // list where id happened to equal array position. Every lookup below
+  // works by id for that reason.
   const nextSong = useCallback(() => {
     const list = songsRef.current;
     if (!list.length) return;
-    const activeQueue = queueRef.current;
+    const activeIds = queueRef.current?.length ? queueRef.current : list.map((s) => s.id);
     const current = songIndexRef.current;
     const shuffle = isShuffleRef.current;
+    const pos = activeIds.indexOf(current);
 
-    if (activeQueue?.length) {
-      const pos = activeQueue.indexOf(current);
-      if (shuffle) {
-        let rand;
-        do {
-          rand = Math.floor(Math.random() * activeQueue.length);
-        } while (activeQueue[rand] === current && activeQueue.length > 1);
-        setSongIndex(activeQueue[rand]);
-      } else {
-        const nextPos = (pos + 1) % activeQueue.length;
-        setSongIndex(activeQueue[nextPos]);
-      }
-    } else if (shuffle) {
-      let rand;
+    if (shuffle) {
+      let randPos;
       do {
-        rand = Math.floor(Math.random() * list.length);
-      } while (rand === current && list.length > 1);
-      setSongIndex(rand);
+        randPos = Math.floor(Math.random() * activeIds.length);
+      } while (activeIds[randPos] === current && activeIds.length > 1);
+      setSongIndex(activeIds[randPos]);
     } else {
-      setSongIndex((current + 1) % list.length);
+      const nextPos = (pos + 1) % activeIds.length;
+      setSongIndex(activeIds[nextPos]);
     }
     setIsPlaying(true);
   }, []);
@@ -91,16 +85,11 @@ export function useAudioPlayer(songs) {
   const prevSong = useCallback(() => {
     const list = songsRef.current;
     if (!list.length) return;
-    const activeQueue = queueRef.current;
+    const activeIds = queueRef.current?.length ? queueRef.current : list.map((s) => s.id);
     const current = songIndexRef.current;
-
-    if (activeQueue?.length) {
-      const pos = activeQueue.indexOf(current);
-      const prevPos = (pos - 1 + activeQueue.length) % activeQueue.length;
-      setSongIndex(activeQueue[prevPos]);
-    } else {
-      setSongIndex((current - 1 + list.length) % list.length);
-    }
+    const pos = activeIds.indexOf(current);
+    const prevPos = (pos - 1 + activeIds.length) % activeIds.length;
+    setSongIndex(activeIds[prevPos]);
     setIsPlaying(true);
   }, []);
 
