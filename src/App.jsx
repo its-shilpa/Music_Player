@@ -19,6 +19,7 @@ import "./App.css";
 import { useSongs } from "./hooks/useSongs";
 import { useAudioPlayer } from "./hooks/useAudioPlayer";
 import { buildArtists } from "./utils/buildArtists";
+import { buildGenres } from "./utils/buildGenres";
 import { SONGS_PER_PAGE } from "./constants/genres";
 
 import AmbientBackground from "./components/AmbientBackground";
@@ -27,8 +28,9 @@ import PlayerView from "./pages/PlayerView";
 
 export default function App() {
   // ── Data: songs coming from the API ───────────────────────
-  const { songs, loading, error, reload } = useSongs();
+  const { songs, loading, error, search, loadDefaultCatalog } = useSongs();
   const artists = buildArtists(songs);
+  const genres = buildGenres(songs);
 
   // ── Audio/player engine (see hooks/useAudioPlayer.js) ─────
   const player = useAudioPlayer(songs);
@@ -46,14 +48,18 @@ export default function App() {
 
   // Debounced live search: 400ms after the user stops typing, re-query the
   // API instead of only filtering the initially-loaded catalog. Clearing
-  // the box goes back to the default catalog.
+  // the box goes back to the diverse default catalog (not one artist).
   useEffect(() => {
     const query = searchQuery.trim();
     const timer = setTimeout(() => {
-      reload(query || "arijit singh");
+      if (query) {
+        search(query);
+      } else {
+        loadDefaultCatalog();
+      }
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchQuery, reload]);
+  }, [searchQuery, search, loadDefaultCatalog]);
 
   // ── Derived: home song list (search box only narrows what's already
   // loaded for genre/artist, since the API call above already narrowed by
@@ -129,6 +135,7 @@ export default function App() {
             <HomeView
               songs={songs}
               artists={artists}
+              genres={genres}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               activeGenre={activeGenre}
