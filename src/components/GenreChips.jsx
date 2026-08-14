@@ -1,10 +1,10 @@
 // src/components/GenreChips.jsx
-import { GENRES } from "../constants/genres";
-
-export default function GenreChips({ activeGenre, onSelect }) {
+// Genres now come from props (derived live from loaded songs via
+// utils/buildGenres.js) instead of a hardcoded constant.
+export default function GenreChips({ genres, activeGenre, onSelect }) {
   return (
     <div className="genre-chips">
-      {GENRES.map((g) => (
+      {genres.map((g) => (
         <button
           key={g}
           className={`genre-chip ${activeGenre === g ? "active" : ""}`}

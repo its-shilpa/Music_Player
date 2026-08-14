@@ -12,6 +12,7 @@ import MiniPlayer from "../components/MiniPlayer";
 export default function HomeView({
   songs,
   artists,
+  genres,
   searchQuery,
   onSearchChange,
   activeGenre,
@@ -54,6 +55,7 @@ export default function HomeView({
         {!searchQuery && (
           <div className="section-block">
             <GenreChips
+              genres={genres}
               activeGenre={activeGenre}
               onSelect={(g) => {
                 onGenreChange(g);
