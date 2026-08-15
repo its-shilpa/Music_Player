@@ -169,28 +169,56 @@ export default function App() {
     player.playFromQueue(id, [id, ...newRelated.map((s) => s.id)]);
   }, [songs, player]);
 
-  // Queue modification handlers
   const removeFromQueue = useCallback((songId) => {
-    if (player.queue) {
-      player.setQueue((prev) => {
-        if (!prev) return null;
-        const nextQ = prev.filter((id) => id !== songId);
-        // If we removed the currently playing song, skip forward first
-        if (songId === player.songIndex && nextQ.length > 0) {
-          player.nextSong();
-        }
-        return nextQ;
-      });
-    }
-  }, [player]);
+    player.setQueue((prev) => {
+      const baseQueue = prev || songs.map((s) => s.id);
+      const nextQ = baseQueue.filter((id) => id !== songId);
+      
+      // If we removed the currently playing song, skip forward first
+      if (songId === player.currentSong?.id && nextQ.length > 0) {
+        player.nextSong();
+      }
+      return nextQ;
+    });
+  }, [player, songs]);
 
   const clearQueue = useCallback(() => {
     player.setQueue(player.currentSong ? [player.currentSong.id] : null);
   }, [player]);
 
-  // ── Dynamic Themes ──────────────────────────────────────────
-  // Resolve theme background based on current playing song, active genre filter, or default
-  const activeBackgroundGenre = currentSong ? currentSong.genre : (activeGenre !== "All" ? activeGenre : null);
+  // ── Dynamic Themes: Auto-cycles every 5 seconds ────────────
+  const [cycleIndex, setCycleIndex] = useState(0);
+  
+  useEffect(() => {
+    const CYCLING_THEMES = [
+      "Bollywood",
+      "Romantic",
+      "Pop",
+      "Classical",
+      "Devotional & Spiritual",
+      "Electronic",
+      "Alternative",
+      "Soundtrack",
+      "Holiday"
+    ];
+    const timer = setInterval(() => {
+      setCycleIndex((prev) => (prev + 1) % CYCLING_THEMES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const activeBackgroundGenre = [
+    "Bollywood",
+    "Romantic",
+    "Pop",
+    "Classical",
+    "Devotional & Spiritual",
+    "Electronic",
+    "Alternative",
+    "Soundtrack",
+    "Holiday"
+  ][cycleIndex];
+
   const activeTheme = getGenreTheme(activeBackgroundGenre);
 
   return (

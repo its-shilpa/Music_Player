@@ -1,9 +1,9 @@
 // src/components/SongCard.jsx
 // A compact card representing a track in a grid.
 // Features a large square artwork, hover play overlay, track details,
-// genre badge, heart favorite toggle, and plus queue buttons.
+// genre badge, heart favorite toggle, and queue list addition buttons.
 
-import { Play, Pause, Heart, Plus } from "lucide-react";
+import { Play, Pause, Heart, ListPlus } from "lucide-react";
 import SongThumb from "./SongThumb";
 
 export default function SongCard({
@@ -56,14 +56,14 @@ export default function SongCard({
             <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
           </button>
 
-          {/* Plus Queue adder */}
+          {/* Queue list adder */}
           <button
             className="song-card-btn"
-            title="Add to queue"
+            title="Add to Play Queue (Up Next)"
             onClick={() => onAddToQueue(song.id)}
             type="button"
           >
-            <Plus size={14} />
+            <ListPlus size={14} />
           </button>
         </div>
       </div>

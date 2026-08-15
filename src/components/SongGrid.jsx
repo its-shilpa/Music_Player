@@ -1,8 +1,9 @@
 // src/components/SongGrid.jsx
-// Grid wrapper component that supports both detailed table lists ("list")
-// and compact square grids ("grid") based on layoutMode. Contains Pagination.
+// Grid coordinator component supporting list rows, 3D flip card grids, and flat card grids.
+// layoutMode options: "list" | "grid-flip" | "grid-simple"
 
 import SongRow from "./SongRow";
+import SongFlipCard from "./SongFlipCard";
 import SongCard from "./SongCard";
 import Pagination from "./Pagination";
 
@@ -18,12 +19,30 @@ export default function SongGrid({
   onToggleFavorite,
   onAddToQueue,
   startIndex = 0,
-  layoutMode = "list" // "list" | "grid"
+  layoutMode = "list"
 }) {
   return (
     <>
-      {layoutMode === "grid" ? (
-        /* Render small cards layout for filtered screens (artist / genre view) */
+      {layoutMode === "grid-flip" && (
+        /* Render 3D flip cards layout for general home grids */
+        <div className="song-card-grid">
+          {songs.map((song) => (
+            <SongFlipCard
+              key={song.id}
+              song={song}
+              isActive={song.id === activeSongId}
+              isPlaying={song.id === activeSongId && isPlaying}
+              onPlay={onPlay}
+              isFavorite={favorites.includes(song.id)}
+              onToggleFavorite={onToggleFavorite}
+              onAddToQueue={onAddToQueue}
+            />
+          ))}
+        </div>
+      )}
+
+      {layoutMode === "grid-simple" && (
+        /* Render flat cards layout with hover gradient border for filtered views */
         <div className="song-card-grid">
           {songs.map((song) => (
             <SongCard
@@ -38,8 +57,10 @@ export default function SongGrid({
             />
           ))}
         </div>
-      ) : (
-        /* Render detailed list table layout for general pages (browse / search) */
+      )}
+
+      {layoutMode === "list" && (
+        /* Render detailed list table layout */
         <>
           <div className="song-table-header">
             <span className="song-table-col-num">#</span>

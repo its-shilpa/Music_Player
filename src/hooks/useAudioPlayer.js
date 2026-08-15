@@ -216,5 +216,7 @@ export function useAudioPlayer(songs) {
     prevSong,
     seek,
     playFromQueue,
+    queue,
+    setQueue,
   };
 }

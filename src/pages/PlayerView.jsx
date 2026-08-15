@@ -3,7 +3,7 @@
 // Uses an asymmetric split layout: left column contains the glowing artwork,
 // right column embeds details, progress sliders, a waveform, and controls.
 
-import { Heart, ListMusic, Home, Sun, Moon, Plus } from "lucide-react";
+import { Heart, ListMusic, Home, Sun, Moon, ListPlus } from "lucide-react";
 import { makeFallbackSVG } from "../utils/fallbackArt";
 import ProgressBar from "../components/ProgressBar";
 import Waveform from "../components/Waveform";
@@ -121,10 +121,10 @@ export default function PlayerView({
 
                 <button
                   className="btn-outline"
-                  title="Queue track"
+                  title="Add to Play Queue (Up Next)"
                   onClick={() => handleAddToQueue(song.id)}
                 >
-                  <Plus size={20} />
+                  <ListPlus size={20} />
                 </button>
               </div>
             </div>

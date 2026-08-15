@@ -3,7 +3,7 @@
 // Features a featured song Hero, scrollable carousels with chevron buttons
 // (Recently Played, Explore Genres, Artists), and a responsive song table/card-grid.
 
-import { Play, Pause, Heart, Plus, Compass, History, ListMusic, Home } from "lucide-react";
+import { Play, Pause, Heart, ListPlus, Compass, History, ListMusic, Home } from "lucide-react";
 import Navbar from "../components/Navbar";
 import GenreChips from "../components/GenreChips";
 import ArtistBubble from "../components/ArtistBubble";
@@ -141,10 +141,10 @@ export default function HomeView({
 
                       <button
                         className="btn-outline"
-                        title="Queue song"
+                        title="Add to Play Queue (Up Next)"
                         onClick={() => handleAddToQueue(featuredSong.id)}
                       >
-                        <Plus size={18} />
+                        <ListPlus size={18} />
                       </button>
                     </div>
                   </div>
@@ -179,8 +179,12 @@ export default function HomeView({
                         >
                           <Heart size={14} fill={favorites.includes(song.id) ? "currentColor" : "none"} />
                         </button>
-                        <button className="shelf-btn" onClick={() => handleAddToQueue(song.id)}>
-                          <Plus size={14} />
+                        <button 
+                          className="shelf-btn" 
+                          onClick={() => handleAddToQueue(song.id)}
+                          title="Add to Play Queue (Up Next)"
+                        >
+                          <ListPlus size={14} />
                         </button>
                       </div>
                     </div>
@@ -191,12 +195,12 @@ export default function HomeView({
           </>
         )}
 
-        {/* Shelf: Genre Filter Strip (wrapped in scrollbar-free carousel with chevrons) */}
+        {/* Shelf: Genre Cards Slider (wrapped in CarouselContainer) */}
         {!searchQuery && (
           <div className="section-block" style={{ paddingBottom: "8px" }}>
             <h2 className="section-title" style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "25px" }}>
               <Compass size={18} style={{ color: "var(--accent)" }} />
-              <span>Explore Genres</span>
+              <span>Browse Genres</span>
             </h2>
             <CarouselContainer paddingClass="genre-carousel-content">
               <GenreChips
@@ -286,7 +290,7 @@ export default function HomeView({
               onToggleFavorite={toggleFavorite}
               onAddToQueue={handleAddToQueue}
               startIndex={(homePage - 1) * SONGS_PER_PAGE}
-              layoutMode={isGridView ? "grid" : "list"}
+              layoutMode={selectedArtist || activeGenre !== "All" ? "grid-simple" : "grid-flip"}
             />
           )}
         </div>

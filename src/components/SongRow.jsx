@@ -1,8 +1,8 @@
 // src/components/SongRow.jsx
-// One clickable row/card representing a song. 
-// Structures columns: Index/Equalizer, Info (art + title + artists), Genre badge, Actions.
+// One clickable row representing a song. 
+// Structures columns: Index/Equalizer/Play, Info (art + title + artists), Genre badge, Actions.
 
-import { Play, Pause, Heart, Plus } from "lucide-react";
+import { Play, Pause, Heart, ListPlus } from "lucide-react";
 import SongThumb from "./SongThumb";
 
 export default function SongRow({
@@ -20,16 +20,21 @@ export default function SongRow({
       className={`song-row ${isActive ? "active" : ""}`}
       onClick={() => onPlay(song.id)}
     >
-      {/* Column 1: Track index or equalizer visualizer if active */}
+      {/* Column 1: Track index or equalizer visualizer if active, play icon on hover */}
       <div className="song-row-num">
-        {isPlaying ? (
+        {isActive && isPlaying ? (
           <div className="song-row-playing-indicator">
             <div className="song-row-playing-bar" style={{ animationDelay: "0.1s" }} />
             <div className="song-row-playing-bar" style={{ animationDelay: "0.3s" }} />
             <div className="song-row-playing-bar" style={{ animationDelay: "0.5s" }} />
           </div>
         ) : (
-          <span>{index}</span>
+          <div className="song-row-index-container">
+            <span className="song-index-number">{index}</span>
+            <span className="song-index-play-icon">
+              <Play size={12} fill="currentColor" />
+            </span>
+          </div>
         )}
       </div>
 
@@ -65,17 +70,19 @@ export default function SongRow({
           className={`song-row-action-btn fav-btn ${isFavorite ? "active" : ""}`}
           title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
           onClick={() => onToggleFavorite(song.id)}
+          type="button"
         >
           <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
         </button>
 
-        {/* Plus Queue adder */}
+        {/* ListPlus Queue adder */}
         <button
           className="song-row-action-btn"
-          title="Add to queue"
+          title="Add to Play Queue (Up Next)"
           onClick={() => onAddToQueue(song.id)}
+          type="button"
         >
-          <Plus size={14} />
+          <ListPlus size={15} />
         </button>
       </div>
     </div>
