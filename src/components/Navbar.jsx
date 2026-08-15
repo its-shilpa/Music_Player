@@ -1,34 +1,175 @@
 // src/components/Navbar.jsx
-// Top bar for the home page: logo, search input, dark/light toggle.
-// It's "controlled" - it owns no state itself, everything comes from props
-// and every change is reported back up via callbacks (onSearchChange etc).
-export default function Navbar({ searchQuery, onSearchChange, onClearSearch, darkMode, onToggleDarkMode }) {
+// Redesigned navigation bar containing the MusePlay brand header,
+// an interactive search bar with matching live suggestions,
+// dark/light mode toggle, play queue toggle, favorites page route, and profile badge.
+
+import { useState, useRef, useEffect } from "react";
+import { Search, X, Sun, Moon, ListMusic, Music, Heart } from "lucide-react";
+import SongThumb from "./SongThumb";
+
+export default function Navbar({
+  searchQuery,
+  onSearchChange,
+  onClearSearch,
+  darkMode,
+  onToggleDarkMode,
+  songs = [],
+  onPlaySong,
+  onOpenQueue,
+  onGoToFavorites,
+  onGoHome,
+  activeView = "home",
+}) {
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchContainerRef = useRef(null);
+
+  // Close suggestions dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filter first 5 tracks matching the search query as suggestions
+  const suggestions = searchQuery.trim()
+    ? songs
+        .filter(
+          (s) =>
+            s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            s.artists.some((a) => a.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+        .slice(0, 5)
+    : [];
+
+  const handleBrandClick = () => {
+    if (onGoHome) onGoHome();
+    if (onClearSearch) onClearSearch();
+  };
+
   return (
     <nav className="home-nav">
-      <div className="home-nav-brand">
-        <span className="brand-icon">♫</span>
+      {/* Brand Logo & Title */}
+      <div className="home-nav-brand" onClick={handleBrandClick}>
+        <span className="brand-icon">
+          <Music size={24} strokeWidth={2.5} />
+        </span>
         <span className="brand-name">MusePlay</span>
       </div>
 
-      <div className="home-search-wrap">
-        <span className="home-search-icon">⌕</span>
-        <input
-          type="text"
-          className="home-search-input"
-          placeholder="Search songs, artists…"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-        {searchQuery && (
-          <button className="home-search-clear" onClick={onClearSearch}>
-            ✕
-          </button>
+      {/* Controlled Search Box with suggestions dropdown */}
+      <div className="home-search-container" ref={searchContainerRef}>
+        <div className="home-search-wrap">
+          <span className="home-search-icon">
+            <Search size={18} />
+          </span>
+          <input
+            type="text"
+            className="home-search-input"
+            placeholder="Search songs, artists, genres..."
+            value={searchQuery}
+            onChange={(e) => {
+              onSearchChange(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+          />
+          {searchQuery && (
+            <button className="home-search-clear" onClick={onClearSearch}>
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
+        {/* Live Search Suggestions Dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="search-suggestions-dropdown">
+            <div 
+              style={{ 
+                padding: "4px 16px 8px", 
+                fontSize: "11px", 
+                fontWeight: 700, 
+                color: "var(--text-tertiary)", 
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}
+            >
+              Suggested Tracks
+            </div>
+            {suggestions.map((song) => (
+              <button
+                key={song.id}
+                className="suggestion-item"
+                onClick={() => {
+                  if (onPlaySong) onPlaySong(song.id);
+                  setShowSuggestions(false);
+                }}
+              >
+                <div style={{ width: "32px", height: "32px", borderRadius: "4px", overflow: "hidden", flexShrink: 0 }}>
+                  <SongThumb song={song} />
+                </div>
+                <div>
+                  <div className="suggestion-text-main">{song.name}</div>
+                  <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
+                    {song.artists.join(", ")}
+                  </div>
+                </div>
+                <span className="suggestion-text-sub">{song.genre}</span>
+              </button>
+            ))}
+          </div>
         )}
       </div>
 
-      <button className="theme-toggle-home" onClick={onToggleDarkMode}>
-        {darkMode ? "☀️" : "🌙"}
-      </button>
+      {/* Header Actions: Favorites, Theme, Queue and Profile */}
+      <div className="nav-actions">
+        {/* Toggle Favorites Page */}
+        {onGoToFavorites && (
+          <button 
+            className={`nav-btn ${activeView === "favorites" ? "active" : ""}`} 
+            title="Favorite Songs"
+            onClick={onGoToFavorites}
+          >
+            <Heart 
+              size={18} 
+              fill={activeView === "favorites" ? "#ee5253" : "none"} 
+              style={activeView === "favorites" ? { color: "#ee5253" } : {}}
+            />
+          </button>
+        )}
+
+        {/* Toggle Play Queue panel */}
+        {onOpenQueue && (
+          <button 
+            className="nav-btn" 
+            title="Open Queue"
+            onClick={onOpenQueue}
+          >
+            <ListMusic size={18} />
+          </button>
+        )}
+
+        {/* Light/Dark Toggle */}
+        <button 
+          className="nav-btn" 
+          onClick={onToggleDarkMode}
+          title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        >
+          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
+        {/* Mock Guest User profile card */}
+        <div className="user-profile-badge" title="Guest Account">
+          <div className="user-avatar">U</div>
+          <span className="user-name">Guest</span>
+        </div>
+      </div>
     </nav>
   );
 }

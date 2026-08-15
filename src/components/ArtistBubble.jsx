@@ -1,12 +1,15 @@
 // src/components/ArtistBubble.jsx
-// One clickable circular artist card in the home page's "Artists" row.
+// One clickable circular artist profile bubble inside the horizontal scroll shelf.
+// Features hover states, border gradient masks, and a play overlay.
+
 import { useState } from "react";
+import { Play } from "lucide-react";
 import { makeArtistFallbackSVG } from "../utils/fallbackArt";
 import { ARTIST_PHOTOS } from "../constants/artistPhotos";
 
 export default function ArtistBubble({ artist, onClick }) {
   const [photoSrc, setPhotoSrc] = useState(
-    ARTIST_PHOTOS[artist.name] || makeArtistFallbackSVG(artist.name, artist.color)
+    () => ARTIST_PHOTOS[artist.name] || makeArtistFallbackSVG(artist.name, artist.color)
   );
 
   return (
@@ -17,6 +20,11 @@ export default function ArtistBubble({ artist, onClick }) {
       onClick={onClick}
     >
       <div className="artist-bubble-avatar">
+        {/* Play overlay shown on hover */}
+        <div className="artist-hover-play">
+          <Play size={20} fill="currentColor" />
+        </div>
+
         <img
           src={photoSrc}
           alt={artist.name}

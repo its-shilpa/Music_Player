@@ -1,15 +1,20 @@
 // src/components/ProgressBar.jsx
-// The clickable seek bar + elapsed/total time under the album art.
+// Clickable progress/seek slider bar with elapsed and remaining time readouts.
+
 import { formatTime } from "../utils/formatTime";
 
 export default function ProgressBar({ progress, currentTime, duration, onSeek }) {
   return (
-    <div className="progress-section">
-      <div className="progress-bar-container" onClick={onSeek}>
-        <div className="progress-bar" style={{ width: `${progress}%` }} />
-        <div className="progress-handle" style={{ left: `${progress}%` }} />
+    <div className="player-progress-section">
+      <div 
+        className="player-progress-bar-container" 
+        onClick={onSeek}
+        title="Seek track"
+      >
+        <div className="player-progress-bar-fill" style={{ width: `${progress}%` }} />
+        <div className="player-progress-handle" style={{ left: `${progress}%` }} />
       </div>
-      <div className="time-display">
+      <div className="player-time-display">
         <span>{formatTime(currentTime)}</span>
         <span>{formatTime(duration)}</span>
       </div>

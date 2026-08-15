@@ -1,7 +1,9 @@
 // src/components/PlayerControls.jsx
-// Shuffle / prev / play-pause / next / repeat row, plus the volume slider.
-// All state lives in useAudioPlayer - this component just displays it and
-// forwards clicks.
+// Control buttons shelf containing Shuffle, Skip Back, Play/Pause, Skip Forward, Repeat,
+// and a volume slider with interactive mute controls.
+
+import { Shuffle, SkipBack, Play, Pause, SkipForward, Repeat, Volume2, VolumeX } from "lucide-react";
+
 export default function PlayerControls({
   isShuffle,
   isRepeat,
@@ -16,39 +18,83 @@ export default function PlayerControls({
 }) {
   return (
     <>
-      <div className="controls-section">
-        <button className={`control-btn ${isShuffle ? "active" : ""}`} onClick={onToggleShuffle}>
-          🔀
+      {/* Audio Playback Controls */}
+      <div className="player-controls-section">
+        {/* Shuffle Toggle */}
+        <button 
+          className={`player-ctrl-btn ${isShuffle ? "active" : ""}`} 
+          title="Shuffle"
+          onClick={onToggleShuffle}
+        >
+          <Shuffle size={18} />
         </button>
-        <button className="control-btn prev-btn" onClick={onPrev}>
-          ⏮
+
+        {/* Previous Song */}
+        <button 
+          className="player-ctrl-btn" 
+          title="Previous song"
+          onClick={onPrev}
+        >
+          <SkipBack size={22} fill="currentColor" />
         </button>
+
+        {/* Big Play / Pause Toggle */}
         <button
-          className={`control-btn play-pause-btn ${isPlaying ? "playing" : ""}`}
+          className="player-ctrl-btn play-pause"
+          title={isPlaying ? "Pause" : "Play"}
           onClick={onTogglePlay}
         >
-          {isPlaying ? "⏸" : "▶"}
+          {isPlaying ? (
+            <Pause size={24} fill="currentColor" />
+          ) : (
+            <Play size={24} fill="currentColor" />
+          )}
         </button>
-        <button className="control-btn next-btn" onClick={onNext}>
-          ⏭
+
+        {/* Next Song */}
+        <button 
+          className="player-ctrl-btn" 
+          title="Next song"
+          onClick={onNext}
+        >
+          <SkipForward size={22} fill="currentColor" />
         </button>
-        <button className={`control-btn ${isRepeat ? "active" : ""}`} onClick={onToggleRepeat}>
-          🔁
+
+        {/* Repeat Toggle */}
+        <button 
+          className={`player-ctrl-btn ${isRepeat ? "active" : ""}`} 
+          title="Repeat"
+          onClick={onToggleRepeat}
+        >
+          <Repeat size={18} />
         </button>
       </div>
 
-      <div className="volume-section">
-        <span className="volume-icon">{volume === 0 ? "🔇" : volume < 0.5 ? "🔉" : "🔊"}</span>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          value={volume}
-          onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-          className="volume-slider"
-        />
-        <span className="volume-percent">{Math.round(volume * 100)}%</span>
+      {/* Volume Section */}
+      <div className="player-volume-section">
+        <button 
+          className="player-ctrl-btn" 
+          style={{ padding: "4px" }}
+          title={volume === 0 ? "Unmute" : "Mute"}
+          onClick={() => onVolumeChange(volume === 0 ? 0.75 : 0)}
+        >
+          {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
+        <div className="player-volume-slider-container">
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
+            className="mini-vol-slider"
+            style={{ width: "100%", height: "100%", opacity: 1 }}
+          />
+        </div>
+        <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)", width: "30px", textAlign: "right" }}>
+          {Math.round(volume * 100)}%
+        </span>
       </div>
     </>
   );
