@@ -2,7 +2,7 @@
 // Dedicated Favorites Page. Lists all tracks the user has marked as favorites.
 // Integrates play commands, toggle favorite triggers, and clear/empty state screens.
 
-import { Heart, Compass, ListMusic, Home } from "lucide-react";
+import { Heart, Compass, Home } from "lucide-react";
 import Navbar from "../components/Navbar";
 import SongGrid from "../components/SongGrid";
 import MiniPlayer from "../components/MiniPlayer";
@@ -18,6 +18,7 @@ export default function FavoritesView({
   favorites = [],
   toggleFavorite,
   onOpenQueue,
+  onGoToFavorites,
 }) {
   // Resolve song objects for the user's favorites list
   const favoriteSongs = favorites
@@ -54,28 +55,30 @@ export default function FavoritesView({
         songs={songs}
         onPlaySong={playFavoriteTrack}
         onOpenQueue={onOpenQueue}
+        onGoToFavorites={onGoToFavorites}
+        onGoHome={onGoHome}
         activeView="favorites"
       />
 
       <div className={`home-scroll-area ${player.isPlaying ? "has-mini-player" : ""}`}>
-        {/* Back and Page Details Header */}
-        <div className="filter-header" style={{ padding: "24px 32px 12px" }}>
-          <button className="filter-back-btn" onClick={onGoHome}>
-            <Home size={14} style={{ marginRight: "6px", display: "inline-block", verticalAlign: "middle" }} />
-            <span style={{ verticalAlign: "middle" }}>Dashboard</span>
+        {/* Dedicated Favorites Page Header Block */}
+        <div className="favorites-header-block">
+          <button className="favorites-back-btn" onClick={onGoHome}>
+            <Home size={14} />
+            <span>Dashboard</span>
           </button>
-          <div className="filter-label">
-            <span className="filter-label-text" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Heart size={20} style={{ color: "#ee5253" }} fill="#ee5253" />
-              <span>Favorite Songs</span>
-            </span>
-            <span className="filter-count" style={{ background: "rgba(238, 82, 83, 0.15)", color: "#ee5253" }}>
-              {favoriteSongs.length} tracks
+          <div className="favorites-title-row">
+            <div className="favorites-title-left">
+              <Heart size={28} style={{ color: "#ee5253" }} fill="#ee5253" />
+              <h1 className="favorites-title-text">Favorite Songs</h1>
+            </div>
+            <span className="favorites-count-badge">
+              {favoriteSongs.length} {favoriteSongs.length === 1 ? "track" : "tracks"}
             </span>
           </div>
         </div>
 
-        {/* Songs List */}
+        {/* Songs List Section */}
         <div className="section-block songs-section">
           {favoriteSongs.length === 0 ? (
             <div 
@@ -92,7 +95,7 @@ export default function FavoritesView({
               <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginBottom: "20px", marginTop: "-4px" }}>
                 Browse songs on the dashboard and click the heart icon to add them here.
               </p>
-              <button className="btn-primary" onClick={onGoHome}>
+              <button className="btn-primary" onClick={onGoHome} type="button">
                 <Compass size={16} /> Explore Catalog
               </button>
             </div>
@@ -116,13 +119,13 @@ export default function FavoritesView({
         <div className="home-footer">MusePlay • Redesigned Premium Web Interface</div>
       </div>
 
-      {/* Mini Player */}
+      {/* Pinned Bottom Mini Player */}
       {player.currentSong && (
         <MiniPlayer
           song={player.currentSong}
           isPlaying={player.isPlaying}
           progress={player.progress}
-          onOpenPlayer={() => player.setIsPlaying(true)}
+          onOpenPlayer={onGoHome} // Return to home page or detailed player if clicked
           onPrev={player.prevSong}
           onTogglePlay={() => player.setIsPlaying((p) => !p)}
           onNext={player.nextSong}

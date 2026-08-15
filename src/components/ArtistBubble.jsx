@@ -1,16 +1,23 @@
 // src/components/ArtistBubble.jsx
-// One clickable circular artist profile bubble inside the horizontal scroll shelf.
-// Features hover states, border gradient masks, and a play overlay.
+// One circular artist profile bubble. Resolves a dynamic profile image
+// from the artist's tracks, falls back to initials, and handles hover overlay play button.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Play } from "lucide-react";
 import { makeArtistFallbackSVG } from "../utils/fallbackArt";
 import { ARTIST_PHOTOS } from "../constants/artistPhotos";
 
 export default function ArtistBubble({ artist, onClick }) {
   const [photoSrc, setPhotoSrc] = useState(
-    () => ARTIST_PHOTOS[artist.name] || makeArtistFallbackSVG(artist.name, artist.color)
+    () => ARTIST_PHOTOS[artist.name] || artist.image || makeArtistFallbackSVG(artist.name, artist.color)
   );
+
+  // Sync state if catalog reloads or query changes the artist properties
+  useEffect(() => {
+    setPhotoSrc(
+      ARTIST_PHOTOS[artist.name] || artist.image || makeArtistFallbackSVG(artist.name, artist.color)
+    );
+  }, [artist.name, artist.image, artist.color]);
 
   return (
     <button

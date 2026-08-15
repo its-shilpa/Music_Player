@@ -3,7 +3,6 @@
 export const ARTIST_PHOTOS = {
   "Shreya Ghoshal": "/images/shreya-ghoshal.webp",
   "Arijit Singh": "/images/arijit-singh.webp",
-  "Sonu Nigam": "/images/sonu-nigam.jpg",
   "Atif Aslam": "/images/atif-aslam.webp",
   "Udit Narayan": "/images/udit-narayan.webp",
   "Ajay-Atul": "/images/ajay-atul.webp",

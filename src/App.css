@@ -2248,3 +2248,88 @@ body {
     height: 35px;
   }
 }
+
+/* ══ BACKGROUND PARTICLE LOCATIONS ══ */
+.particle:nth-child(1)  { left: 6%;  font-size: 11px; animation-duration: 14s; }
+.particle:nth-child(2)  { left: 16%; font-size: 16px; animation-duration: 17s; }
+.particle:nth-child(3)  { left: 26%; font-size: 10px; animation-duration: 12s; }
+.particle:nth-child(4)  { left: 36%; font-size: 14px; animation-duration: 19s; }
+.particle:nth-child(5)  { left: 46%; font-size: 18px; animation-duration: 15s; }
+.particle:nth-child(6)  { left: 56%; font-size: 10px; animation-duration: 13s; }
+.particle:nth-child(7)  { left: 66%; font-size: 15px; animation-duration: 16s; }
+.particle:nth-child(8)  { left: 76%; font-size: 12px; animation-duration: 11s; }
+.particle:nth-child(9)  { left: 86%; font-size: 13px; animation-duration: 20s; }
+.particle:nth-child(10) { left: 94%; font-size: 9px;  animation-duration: 13s; }
+
+/* ══ FAVORITES VIEW HEADER ══ */
+.favorites-header-block {
+  padding: 32px 32px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 10;
+}
+
+.favorites-back-btn {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-thin);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.favorites-back-btn:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-medium);
+  transform: translateY(-1px);
+}
+
+.favorites-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.favorites-title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.favorites-title-text {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.favorites-count-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ee5253;
+  background: rgba(238, 82, 83, 0.12);
+  border: 1px solid rgba(238, 82, 83, 0.25);
+  padding: 6px 14px;
+  border-radius: 30px;
+}
+
+@media (max-width: 640px) {
+  .favorites-header-block {
+    padding: 20px 16px 8px;
+  }
+  .favorites-title-text {
+    font-size: 22px;
+  }
+}
