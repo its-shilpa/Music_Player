@@ -1,7 +1,7 @@
 // src/components/Navbar.jsx
 // Redesigned navigation bar containing the MusePlay brand header,
 // an interactive search bar with matching live suggestions,
-// dark/light mode toggle, play queue toggle, favorites page route, and profile badge.
+// dark/light mode toggle, play queue toggle, and favorites page route.
 
 import { useState, useRef, useEffect } from "react";
 import { Search, X, Sun, Moon, ListMusic, Music, Heart } from "lucide-react";
@@ -127,7 +127,7 @@ export default function Navbar({
         )}
       </div>
 
-      {/* Header Actions: Favorites, Theme, Queue and Profile */}
+      {/* Header Actions: Favorites, Theme, Queue */}
       <div className="nav-actions">
         {/* Toggle Favorites Page */}
         {onGoToFavorites && (
@@ -135,6 +135,7 @@ export default function Navbar({
             className={`nav-btn ${activeView === "favorites" ? "active" : ""}`} 
             title="Favorite Songs"
             onClick={onGoToFavorites}
+            type="button"
           >
             <Heart 
               size={18} 
@@ -150,6 +151,7 @@ export default function Navbar({
             className="nav-btn" 
             title="Open Queue"
             onClick={onOpenQueue}
+            type="button"
           >
             <ListMusic size={18} />
           </button>
@@ -160,15 +162,10 @@ export default function Navbar({
           className="nav-btn" 
           onClick={onToggleDarkMode}
           title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          type="button"
         >
           {darkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
-
-        {/* Mock Guest User profile card */}
-        <div className="user-profile-badge" title="Guest Account">
-          <div className="user-avatar">U</div>
-          <span className="user-name">Guest</span>
-        </div>
       </div>
     </nav>
   );

@@ -33,9 +33,13 @@
   --scrollbar-thumb: rgba(255, 255, 255, 0.15);
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
   --glow-opacity: 0.25;
-  .section-title, .home-footer {
+  .section-title {
     color: #fff;
-}
+  }
+  .home-footer {
+    color: #fff;
+    text-align: center;
+  }
 }
 
 .app.light {
@@ -2168,7 +2172,7 @@ body {
 }
 
 /* ══ MOBILE SCREEN HERO REFLOW ══ */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .featured-hero-container {
     padding: 20px 16px 8px;
   }
@@ -2236,16 +2240,22 @@ body {
     gap: 8px !important;
   }
 
-  .user-profile-badge {
-    display: none !important; /* Hide profile badge on mobile to avoid squeezing layout */
-  }
-
   h2.section-title {
     font-size: 21px;
   } 
   .nav-btn {
     width: 35px;
     height: 35px;
+  }
+
+  /* Reduce mobile layout paddings to solve horizontal scroll overflows */
+  .section-block, .songs-section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .song-row {
+    padding: 10px 8px !important;
   }
 }
 
@@ -2325,11 +2335,166 @@ body {
   border-radius: 30px;
 }
 
-@media (max-width: 640px) {
+/* ══ SONG CARD GRID (SMALL CARDS) ══ */
+.song-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+  padding: 8px 0 24px;
+}
+
+.song-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-thin);
+  border-radius: var(--border-radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.song-card:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-medium);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 0 10px rgba(var(--accent-rgb), 0.12);
+}
+
+.song-card.active {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.06), transparent);
+}
+
+.song-card-art {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.song-card-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-cinematic);
+}
+
+.song-card:hover .song-card-art img {
+  transform: scale(1.05);
+}
+
+.song-card-hover-play {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.song-card:hover .song-card-hover-play,
+.song-card.active .song-card-hover-play {
+  opacity: 1;
+}
+
+.song-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.song-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-card-artist {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  border-top: 1px solid var(--border-thin);
+  padding-top: 8px;
+}
+
+.song-card-genre {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.song-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.song-card-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.song-card-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.song-card-btn.fav-btn.active {
+  color: #ee5253;
+}
+
+@media (max-width: 768px) {
   .favorites-header-block {
     padding: 20px 16px 8px;
   }
   .favorites-title-text {
     font-size: 22px;
+  }
+}
+
+/* Adjust card columns on smaller mobile screens */
+@media (max-width: 480px) {
+  .song-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+  }
+  .song-card {
+    padding: 8px;
+    gap: 8px;
+  }
+  .song-card-title {
+    font-size: 12px;
   }
 }

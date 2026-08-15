@@ -1,9 +1,9 @@
 // src/pages/HomeView.jsx
 // Redesigned browsing and music discovery dashboard.
 // Features a featured song Hero, scrollable carousels with chevron buttons
-// (Recently Played, Explore Genres, Artists), and a responsive song table.
+// (Recently Played, Explore Genres, Artists), and a responsive song table/card-grid.
 
-import { Play, Pause, Heart, Plus, Compass, History, ListMusic } from "lucide-react";
+import { Play, Pause, Heart, Plus, Compass, History, ListMusic, Home } from "lucide-react";
 import Navbar from "../components/Navbar";
 import GenreChips from "../components/GenreChips";
 import ArtistBubble from "../components/ArtistBubble";
@@ -62,6 +62,9 @@ export default function HomeView({
       return [...baseQ, id];
     });
   };
+
+  // Determine whether to show small cards view or detailed table list
+  const isGridView = !!selectedArtist || activeGenre !== "All";
 
   return (
     <div className="home-view">
@@ -151,8 +154,8 @@ export default function HomeView({
 
             {/* Shelf: Recently Played (excluding currently playing, max 8, carousel-arrow-driven) */}
             {historySongs.length > 0 && (
-              <div className="section-block">
-                <h2 className="section-title">
+              <div className="section-block" style={{ paddingBottom: "8px" }}>
+                <h2 className="section-title" style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "25px" }}>
                   <History size={18} style={{ color: "var(--accent)" }} />
                   <span>Recently Played</span>
                 </h2>
@@ -190,8 +193,8 @@ export default function HomeView({
 
         {/* Shelf: Genre Filter Strip (wrapped in scrollbar-free carousel with chevrons) */}
         {!searchQuery && (
-          <div className="section-block">
-            <h2 className="section-title">
+          <div className="section-block" style={{ paddingBottom: "8px" }}>
+            <h2 className="section-title" style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "25px" }}>
               <Compass size={18} style={{ color: "var(--accent)" }} />
               <span>Explore Genres</span>
             </h2>
@@ -210,8 +213,8 @@ export default function HomeView({
 
         {/* Shelf: Popular Artists bubbles (wrapped in scrollbar-free carousel with chevrons) */}
         {!searchQuery && activeGenre === "All" && !selectedArtist && (
-          <div className="section-block">
-            <h2 className="section-title">Popular Artists</h2>
+          <div className="section-block" style={{ paddingBottom: "8px" }}>
+            <h2 className="section-title" style={{ paddingLeft: "25px" }}>Popular Artists</h2>
             <CarouselContainer paddingClass="artists-carousel-content">
               {artists.map((artist) => (
                 <ArtistBubble
@@ -224,27 +227,39 @@ export default function HomeView({
           </div>
         )}
 
-        {/* Search & Filter Header states */}
+        {/* Selected Artist Details Header Block (fixes overlap) */}
         {selectedArtist && (
-          <div className="filter-header" style={{ padding: "16px 32px 8px" }}>
-            <button className="filter-back-btn" onClick={() => onArtistChange(null)}>
-              ← Back to Dashboard
+          <div className="favorites-header-block" style={{ paddingBottom: "0" }}>
+            <button className="favorites-back-btn" onClick={() => onArtistChange(null)}>
+              <Home size={14} />
+              <span>Dashboard</span>
             </button>
-            <div className="filter-label">
-              <span className="filter-label-text">Artist: {selectedArtist}</span>
-              <span className="filter-count">{homeSongs.length} songs</span>
+            <div className="favorites-title-row">
+              <div className="favorites-title-left">
+                <span className="favorites-title-text">Artist: {selectedArtist}</span>
+              </div>
+              <span className="favorites-count-badge">
+                {homeSongs.length} {homeSongs.length === 1 ? "track" : "tracks"}
+              </span>
             </div>
           </div>
         )}
 
+        {/* Search Results Details Header Block (fixes overlap) */}
         {searchQuery && (
-          <div className="filter-header" style={{ padding: "16px 32px 8px" }}>
-            <span className="filter-label-text">Results for "{searchQuery}"</span>
-            <span className="filter-count">{homeSongs.length} tracks</span>
+          <div className="favorites-header-block" style={{ paddingBottom: "0" }}>
+            <div className="favorites-title-row">
+              <div className="favorites-title-left">
+                <span className="favorites-title-text">Results for "{searchQuery}"</span>
+              </div>
+              <span className="favorites-count-badge">
+                {homeSongs.length} {homeSongs.length === 1 ? "track" : "tracks"}
+              </span>
+            </div>
           </div>
         )}
 
-        {/* Songs List Section */}
+        {/* Songs List / Card-Grid Section */}
         <div className="section-block songs-section">
           {!searchQuery && !selectedArtist && (
             <h2 className="section-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -271,6 +286,7 @@ export default function HomeView({
               onToggleFavorite={toggleFavorite}
               onAddToQueue={handleAddToQueue}
               startIndex={(homePage - 1) * SONGS_PER_PAGE}
+              layoutMode={isGridView ? "grid" : "list"}
             />
           )}
         </div>
