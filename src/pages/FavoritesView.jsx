@@ -60,7 +60,7 @@ export default function FavoritesView({
         activeView="favorites"
       />
 
-      <div className={`home-scroll-area ${player.isPlaying ? "has-mini-player" : ""}`}>
+      <div className={`home-scroll-area ${player.currentSong ? "has-mini-player" : ""}`}>
         {/* Dedicated Favorites Page Header Block */}
         <div className="favorites-header-block">
           <button className="favorites-back-btn" onClick={onGoHome}>

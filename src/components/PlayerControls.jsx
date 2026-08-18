@@ -73,8 +73,7 @@ export default function PlayerControls({
       {/* Volume Section */}
       <div className="player-volume-section">
         <button 
-          className="player-ctrl-btn" 
-          style={{ padding: "4px" }}
+          className="player-ctrl-btn volume-btn" 
           title={volume === 0 ? "Unmute" : "Mute"}
           onClick={() => onVolumeChange(volume === 0 ? 0.75 : 0)}
         >

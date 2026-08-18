@@ -87,7 +87,7 @@ export default function HomeView({
         activeView={activeView}
       />
 
-      <div className={`home-scroll-area ${player.isPlaying ? "has-mini-player" : ""}`}>
+      <div className={`home-scroll-area ${player.currentSong ? "has-mini-player" : ""}`}>
         {/* Render Discovery components only if no search queries and artist filters are active */}
         {!searchQuery && !selectedArtist && (
           <>

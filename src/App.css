@@ -63,6 +63,15 @@
   }
 }
 
+.home-footer {
+  margin-top: auto !important;
+  padding: 32px 16px 20px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  width: 100%;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -82,6 +91,7 @@ body {
 .app {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   position: relative;
   font-family: var(--font-primary);
@@ -226,6 +236,8 @@ body {
   overflow-x: hidden;
   padding-bottom: 32px;
   scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
 }
 
 .home-scroll-area.has-mini-player {
@@ -1029,7 +1041,7 @@ body {
 
 .song-table-header {
   display: grid;
-  grid-template-columns: 50px 3fr 2fr 2fr 100px;
+  grid-template-columns: 50px minmax(0, 3fr) minmax(0, 2fr) minmax(0, 2fr) 100px;
   padding: 10px 16px;
   color: var(--text-tertiary);
   font-size: 12px;
@@ -1042,7 +1054,7 @@ body {
 
 .song-row {
   display: grid;
-  grid-template-columns: 50px 3fr 2fr 2fr 100px;
+  grid-template-columns: 50px minmax(0, 3fr) minmax(0, 2fr) minmax(0, 2fr) 100px;
   align-items: center;
   padding: 14px 20px;
   background: transparent;
@@ -1285,6 +1297,17 @@ body {
 }
 
 /* ══ PERSISTENT MINI PLAYER BAR ══ */
+.mini-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--border-thin);
+  z-index: 5;
+  overflow: hidden;
+}
+
 .mini-player-bar {
   position: absolute;
   bottom: 0;
@@ -1567,19 +1590,115 @@ body {
   transform: translateX(-2px);
 }
 
-.player-nav-title {
-  font-size: 14px;
+.player-nav-title.live-now {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.live-indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 8px;
+  height: 8px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ff3b30;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.live-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background-color: #ff3b30;
+  border-radius: 50%;
+  animation: livePulse 1.8s infinite ease-out;
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.live-text {
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--text-secondary);
+  letter-spacing: 1.5px;
+  color: var(--text-primary);
+}
+
+.live-equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 10px;
+  height: 10px;
+  margin-left: 2px;
+}
+
+.live-equalizer .eq-bar {
+  width: 2px;
+  background-color: #ff3b30;
+  border-radius: 1px;
+  animation: eqPulse 0.8s ease-in-out infinite alternate;
+}
+
+.live-equalizer .eq-bar:nth-child(1) {
+  height: 30%;
+  animation-delay: 0.15s;
+}
+
+.live-equalizer .eq-bar:nth-child(2) {
+  height: 80%;
+  animation-delay: 0.3s;
+}
+
+.live-equalizer .eq-bar:nth-child(3) {
+  height: 50%;
+  animation-delay: 0.45s;
+}
+
+@keyframes livePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+@keyframes eqPulse {
+  0% {
+    height: 25%;
+  }
+  100% {
+    height: 100%;
+  }
 }
 
 .player-scroll-area {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: 40px;
   scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
 }
 
 .player-scroll-area::-webkit-scrollbar {
@@ -1609,12 +1728,14 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
+  min-width: 0;
 }
 
 .player-artwork-glow-wrapper {
   position: relative;
   width: 380px;
-  height: 380px;
+  height: auto;
+  aspect-ratio: 1 / 1;
   max-width: 100%;
 }
 
@@ -1670,6 +1791,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
 }
 
 .player-song-header {
@@ -1856,6 +1978,20 @@ body {
   box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.45);
 }
 
+.player-ctrl-btn.volume-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary, #ba54f5));
+  color: #fff !important;
+  padding: 8px !important;
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+  transition: var(--transition-smooth);
+}
+
+.player-ctrl-btn.volume-btn:hover {
+  transform: scale(1.08);
+  filter: brightness(1.15);
+  box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.4);
+}
+
 /* Volume Bar */
 .player-volume-section {
   display: flex;
@@ -1898,8 +2034,9 @@ body {
   }
   
   .player-artwork-glow-wrapper {
-    width: 280px;
-    height: 280px;
+    width: min(280px, 100%);
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
   
   .player-details-column {
@@ -2346,6 +2483,69 @@ body {
 
   .song-row {
     padding: 10px 8px !important;
+  }
+
+  /* Player nav responsive tweaks */
+  .player-nav {
+    padding: 12px 16px !important;
+    gap: 12px !important;
+  }
+
+  .player-nav-title.live-now {
+    padding: 4px 10px !important;
+    gap: 6px !important;
+  }
+
+  .live-text {
+    font-size: 10px !important;
+    letter-spacing: 1px !important;
+  }
+
+  /* Back buttons to circle icon buttons on mobile */
+  .player-back-btn,
+  .favorites-back-btn {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    gap: 0 !important;
+  }
+  
+  .player-back-btn span,
+  .favorites-back-btn span {
+    display: none !important;
+  }
+
+  /* Detailed player content updates on smaller screens */
+  .player-main-layout {
+    padding: 12px 16px !important;
+    gap: 20px !important;
+  }
+
+  .player-artwork-glow-wrapper {
+    width: min(230px, 100%) !important;
+  }
+
+  .player-details-column {
+    padding: 20px !important;
+    gap: 16px !important;
+  }
+
+  .player-song-title {
+    font-size: 20px !important;
+  }
+
+  .player-controls-section {
+    gap: 6px !important;
+  }
+
+  .player-ctrl-btn {
+    padding: 8px !important;
+  }
+
+  .player-ctrl-btn.play-pause {
+    padding: 14px !important;
   }
 }
 

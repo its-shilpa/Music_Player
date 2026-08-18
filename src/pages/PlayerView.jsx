@@ -51,7 +51,20 @@ export default function PlayerView({
           <span>Dashboard</span>
         </button>
         
-        <div className="player-nav-title">Now Playing</div>
+        <div className="player-nav-title live-now">
+          <span className="live-indicator">
+            <span className="live-dot" />
+            <span className="live-pulse" />
+          </span>
+          <span className="live-text">Now Playing</span>
+          {player.isPlaying && (
+            <div className="live-equalizer">
+              <span className="eq-bar" />
+              <span className="eq-bar" />
+              <span className="eq-bar" />
+            </div>
+          )}
+        </div>
         
         <div className="nav-actions">
           {/* Open Favorites Page */}
