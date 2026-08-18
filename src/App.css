@@ -1863,7 +1863,7 @@ body {
   gap: 12px;
   padding-top: 10px;
   border-top: 1px solid var(--border-thin);
-  justify-content: flex-end; /* Align volume controls to the right side */
+  justify-content: flex-start; 
 }
 
 .player-volume-slider-container {
