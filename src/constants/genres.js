@@ -1,2 +1,2 @@
 export const GENRES = ["All", "Bollywood", "Romantic", "Pop", "Classic", "Sufi"];
-export const SONGS_PER_PAGE = 15;
+export const SONGS_PER_PAGE = 18;
