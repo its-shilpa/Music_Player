@@ -88,6 +88,9 @@ export default function PlayerControls({
             value={volume}
             onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
             className="mini-vol-slider"
+            style={{
+              background: `linear-gradient(to right, var(--accent) 0%, var(--accent) ${volume * 100}%, var(--border-medium) ${volume * 100}%, var(--border-medium) 100%)`
+            }}
           />
         </div>
         <span className="volume-percentage">

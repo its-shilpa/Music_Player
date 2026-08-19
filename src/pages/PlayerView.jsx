@@ -3,8 +3,10 @@
 // Uses an asymmetric split layout: left column contains the glowing artwork,
 // right column embeds details, progress sliders, a waveform, and controls.
 
+import { useState, useRef, useEffect } from "react";
 import { Heart, ListMusic, Home, Sun, Moon, ListPlus } from "lucide-react";
 import { makeFallbackSVG } from "../utils/fallbackArt";
+import { getLyricsForSong } from "../utils/lyricsProvider";
 import ProgressBar from "../components/ProgressBar";
 import Waveform from "../components/Waveform";
 import PlayerControls from "../components/PlayerControls";
@@ -12,6 +14,7 @@ import SongGrid from "../components/SongGrid";
 
 export default function PlayerView({
   player,
+  songs = [],
   darkMode,
   onToggleDarkMode,
   onGoHome,
@@ -31,6 +34,46 @@ export default function PlayerView({
   if (!song) return null;
 
   const isFavorite = favorites.includes(song.id);
+
+  const [activeTab, setActiveTab] = useState("queue"); // "queue" | "lyrics"
+  const titleRef = useRef(null);
+  const [scrollDist, setScrollDist] = useState(0);
+  const lyricsContainerRef = useRef(null);
+
+  // Measure title overflow marquee distance
+  useEffect(() => {
+    const el = titleRef.current;
+    if (el) {
+      const overflow = el.scrollWidth - el.clientWidth;
+      setScrollDist(overflow > 0 ? overflow : 0);
+    }
+  }, [song.name]);
+
+  const lyrics = getLyricsForSong(song.name);
+  // Find the active lyric line based on current playback time in seconds
+  let activeLineIndex = 0;
+  for (let i = 0; i < lyrics.length; i++) {
+    if (player.currentTime >= lyrics[i].time) {
+      activeLineIndex = i;
+    } else {
+      break;
+    }
+  }
+
+  useEffect(() => {
+    const activeEl = lyricsContainerRef.current?.querySelector(".lyric-line.active");
+    if (activeEl) {
+      activeEl.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [activeLineIndex]);
+
+  const queueIds = player.queue || [];
+  const currentPos = queueIds.indexOf(song.id);
+  const nextIds = currentPos !== -1 ? queueIds.slice(currentPos + 1, currentPos + 6) : [];
+  const nextSongs = nextIds.map(id => songs.find(s => s.id === id)).filter(Boolean);
 
   // Helper to add a song to the current play queue
   const handleAddToQueue = (id) => {
@@ -118,7 +161,16 @@ export default function PlayerView({
           <div className="player-details-column">
             <div className="player-song-header">
               <div className="player-song-info">
-                <h1 className="player-song-title">{song.name}</h1>
+                <div className="player-song-title-wrap">
+                  <h1 
+                    ref={titleRef}
+                    className={`player-song-title ${scrollDist > 0 ? "marquee-active" : ""}`}
+                    style={{ "--scroll-dist": `-${scrollDist}px` }}
+                    title={song.name}
+                  >
+                    {song.name}
+                  </h1>
+                </div>
                 <p className="player-song-artist">{song.artists.join(", ")}</p>
                 <span className="player-genre-pill">{song.genre}</span>
               </div>
@@ -152,7 +204,7 @@ export default function PlayerView({
 
             {/* Audio Waveform visualization */}
             <div className="waveform-container">
-              <Waveform isPlaying={player.isPlaying} bars={32} />
+              <Waveform isPlaying={player.isPlaying} volume={player.volume} bars={32} />
             </div>
 
             {/* Playback action controls & volume panel */}
@@ -168,6 +220,71 @@ export default function PlayerView({
               volume={player.volume}
               onVolumeChange={player.setVolume}
             />
+          </div>
+
+          {/* Side Panel: Up Next & Synced Lyrics */}
+          <div className="player-side-panel">
+            <div className="side-panel-tabs">
+              <button 
+                className={`side-tab ${activeTab === "queue" ? "active" : ""}`}
+                onClick={() => setActiveTab("queue")}
+                type="button"
+              >
+                Up Next
+              </button>
+              <button 
+                className={`side-tab ${activeTab === "lyrics" ? "active" : ""}`}
+                onClick={() => setActiveTab("lyrics")}
+                type="button"
+              >
+                Lyrics
+              </button>
+            </div>
+            
+            <div className="side-panel-content">
+              {activeTab === "queue" && (
+                <div className="up-next-list">
+                  {nextSongs.length === 0 ? (
+                    <div className="empty-side-state">
+                      <p>Queue is empty.</p>
+                      <button className="btn-outline" onClick={onGoHome} style={{ fontSize: "11px", padding: "6px 12px" }} type="button">
+                        Browse Songs
+                      </button>
+                    </div>
+                  ) : (
+                    nextSongs.map((ns, idx) => (
+                      <div 
+                        key={ns.id} 
+                        className="up-next-item" 
+                        onClick={() => player.setSongIndex(ns.id)}
+                      >
+                        <span className="up-next-num">{idx + 1}</span>
+                        <div className="up-next-thumb">
+                          <img src={ns.image || makeFallbackSVG(ns.name, ns.color)} alt={ns.name} />
+                        </div>
+                        <div className="up-next-info">
+                          <div className="up-next-name">{ns.name}</div>
+                          <div className="up-next-artist">{ns.artists.join(", ")}</div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+              
+              {activeTab === "lyrics" && (
+                <div className="lyrics-display" ref={lyricsContainerRef}>
+                  {lyrics.map((line, idx) => (
+                    <p 
+                      key={idx} 
+                      className={`lyric-line ${idx === activeLineIndex ? "active" : ""}`}
+                    >
+                      {line.text}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

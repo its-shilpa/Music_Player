@@ -291,6 +291,7 @@ export default function App() {
           {!loading && !error && view === "player" && currentSong && (
             <PlayerView
               player={player}
+              songs={songs}
               darkMode={darkMode}
               onToggleDarkMode={() => setDarkMode((d) => !d)}
               onGoHome={() => setView("home")}
