@@ -61,11 +61,16 @@ export default function PlayerView({
   }
 
   useEffect(() => {
-    const activeEl = lyricsContainerRef.current?.querySelector(".lyric-line.active");
-    if (activeEl) {
-      activeEl.scrollIntoView({
+    const container = lyricsContainerRef.current;
+    const activeEl = container?.querySelector(".lyric-line.active");
+    if (container && activeEl) {
+      const containerHeight = container.clientHeight;
+      const elemTop = activeEl.offsetTop;
+      const elemHeight = activeEl.clientHeight;
+      
+      container.scrollTo({
+        top: elemTop - containerHeight / 2 + elemHeight / 2,
         behavior: "smooth",
-        block: "center",
       });
     }
   }, [activeLineIndex]);

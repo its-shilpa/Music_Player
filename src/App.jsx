@@ -89,6 +89,14 @@ export default function App() {
 
   // ── Home Page Filters ──────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
+  const [initialLoaded, setInitialLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!loading && songs.length > 0) {
+      setInitialLoaded(true);
+    }
+  }, [loading, songs]);
+
   const [activeGenre, setActiveGenre] = useState("All");
   const [selectedArtist, setSelectedArtist] = useState(null);
   const [homePage, setHomePage] = useState(1);
@@ -237,7 +245,7 @@ export default function App() {
           <AmbientBackground genre={activeBackgroundGenre} />
 
           {/* Loading Catalog State */}
-          {loading && songs.length === 0 && (
+          {!initialLoaded && loading && (
             <div className="home-empty" style={{ paddingTop: "8rem", zIndex: 10 }}>
               <div className="song-row-playing-indicator" style={{ width: "24px", height: "24px", margin: "0 auto 16px" }}>
                 <div className="song-row-playing-bar" style={{ width: "4px" }} />
@@ -256,7 +264,7 @@ export default function App() {
             </div>
           )}
 
-          {!loading && !error && view === "home" && (
+          {initialLoaded && !error && view === "home" && (
             <HomeView
               songs={songs}
               artists={artists}
@@ -282,19 +290,25 @@ export default function App() {
               recentlyPlayed={recentlyPlayed}
               onOpenQueue={() => setIsQueueOpen(true)}
               onGoToFavorites={() => setView("favorites")}
-              onGoHome={() => setView("home")}
+              onGoHome={() => {
+                setSearchQuery("");
+                setView("home");
+              }}
               activeView="home"
             />
           )}
 
           {/* Detailed Player Screen */}
-          {!loading && !error && view === "player" && currentSong && (
+          {initialLoaded && !error && view === "player" && currentSong && (
             <PlayerView
               player={player}
               songs={songs}
               darkMode={darkMode}
               onToggleDarkMode={() => setDarkMode((d) => !d)}
-              onGoHome={() => setView("home")}
+              onGoHome={() => {
+                setSearchQuery("");
+                setView("home");
+              }}
               relatedSongs={relatedSongs}
               pagedRelatedSongs={pagedRelatedSongs}
               relatedPage={relatedPage}
@@ -310,7 +324,7 @@ export default function App() {
           )}
 
           {/* Dedicated Favorites Page */}
-          {!loading && !error && view === "favorites" && (
+          {initialLoaded && !error && view === "favorites" && (
             <FavoritesView
               songs={songs}
               searchQuery={searchQuery}
@@ -318,7 +332,10 @@ export default function App() {
               darkMode={darkMode}
               onToggleDarkMode={() => setDarkMode((d) => !d)}
               player={player}
-              onGoHome={() => setView("home")}
+              onGoHome={() => {
+                setSearchQuery("");
+                setView("home");
+              }}
               favorites={favorites}
               toggleFavorite={toggleFavorite}
               onOpenQueue={() => setIsQueueOpen(true)}

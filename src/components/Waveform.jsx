@@ -1,38 +1,47 @@
 // src/components/Waveform.jsx
 // Animated visualizer waveform that responds to playback and volume level.
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function Waveform({ isPlaying, bars = 22, volume = 1 }) {
-  const [heights, setHeights] = useState(() => Array(bars).fill(20));
+  const containerRef = useRef(null);
   const animationRef = useRef();
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Get all the child wave-bar DOM elements
+    const barElements = container.querySelectorAll(".wave-bar");
+    const numBars = barElements.length;
+
     if (!isPlaying) {
-      // Return to a resting state with subtle variation
-      setHeights(Array(bars).fill(0).map((_, i) => 15 + Math.sin(i * 0.5) * 5));
+      // Set to a resting state with smooth transitions
+      barElements.forEach((bar, i) => {
+        bar.style.transition = "height 0.3s ease";
+        bar.style.height = `${15 + Math.sin(i * 0.5) * 5}%`;
+      });
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
       return;
     }
 
+    // Direct DOM height animation loop (60fps with zero React re-renders!)
     const updateWave = () => {
-      setHeights((prev) =>
-        prev.map((h, i) => {
-          // Create a wave that moves over time
-          const t = Date.now() * 0.006;
-          // Combine multiple sine waves for complexity
-          const wave = Math.sin(i * 0.3 + t) * Math.cos(i * 0.7 - t * 0.5);
-          // Scale by volume
+      const t = Date.now() * 0.006;
+      for (let i = 0; i < numBars; i++) {
+        const bar = barElements[i];
+        if (bar) {
+          const wave = Math.sin(i * 0.3 + t) * Math.cos(i * 0.7 - t * 0.03);
           const amp = 40 * volume;
-          // Add some organic noise/jitter
           const jitter = (Math.random() - 0.5) * 15 * volume;
-          // Map to a final height range (e.g. 15% to 95%)
           const finalHeight = Math.max(15, Math.min(95, 45 + wave * amp + jitter));
-          return finalHeight;
-        })
-      );
+
+          bar.style.transition = "none";
+          bar.style.height = `${finalHeight}%`;
+        }
+      }
       animationRef.current = requestAnimationFrame(updateWave);
     };
 
@@ -43,19 +52,12 @@ export default function Waveform({ isPlaying, bars = 22, volume = 1 }) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isPlaying, bars, volume]);
+  }, [isPlaying, volume]);
 
   return (
-    <div className={`waveform ${isPlaying ? "active" : ""}`}>
-      {heights.map((h, i) => (
-        <div
-          key={i}
-          className="wave-bar"
-          style={{
-            height: `${h}%`,
-            transition: isPlaying ? "none" : "height 0.3s ease",
-          }}
-        />
+    <div ref={containerRef} className={`waveform ${isPlaying ? "active" : ""}`}>
+      {[...Array(bars)].map((_, i) => (
+        <div key={i} className="wave-bar" />
       ))}
     </div>
   );

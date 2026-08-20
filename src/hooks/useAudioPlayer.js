@@ -36,6 +36,7 @@ export function useAudioPlayer(songs) {
   const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [imgSrc, setImgSrc] = useState("");
+  const [playingSong, setPlayingSong] = useState(null);
 
   // Queue = the ordered list of song ids the user was browsing when they
   // pressed play. next/prev walk through THIS list instead of the full
@@ -55,7 +56,7 @@ export function useAudioPlayer(songs) {
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
   useEffect(() => { queueRef.current = queue; }, [queue]);
 
-  const currentSong = songs.find((s) => s.id === songIndex) ?? null;
+  const currentSong = playingSong || songs.find((s) => s.id === songIndex) || null;
 
   // "queue" and "songIndex" both store SONG IDS (not array positions) -
   // iTunes ids are arbitrary large numbers, unlike your old hardcoded
@@ -142,14 +143,25 @@ export function useAudioPlayer(songs) {
   // Whenever the current song changes, load its preview url into <audio>.
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !currentSong) return;
+    if (!audio) return;
+
+    // Cache the playing song object
+    const list = songsRef.current;
+    const found = list.find((s) => s.id === songIndex);
+    if (found) {
+      setPlayingSong(found);
+    }
+
+    const songToPlay = found || playingSong || songs.find((s) => s.id === songIndex);
+    if (!songToPlay) return;
+
     audio.pause();
-    audio.src = currentSong.preview;
+    audio.src = songToPlay.preview;
     audio.load();
     setProgress(0);
     setCurrentTime(0);
     setDuration(0);
-    setImgSrc(currentSong.image);
+    setImgSrc(songToPlay.image);
     if (isPlayingRef.current) {
       const onCanPlay = () => {
         audio.play().catch(() => {});
