@@ -147,6 +147,12 @@ export default function PlayerView({
           <div className="player-artwork-column">
             <div className="player-artwork-glow-wrapper">
               <div className="player-artwork-ambient-glow" />
+              {/* Rotating 3D orbit rings */}
+              <div className={`player-artwork-orbit-rings ${player.isPlaying ? "playing" : "paused"}`}>
+                <div className="orbit-ring ring-1" />
+                <div className="orbit-ring ring-2" />
+                <div className="orbit-ring ring-3" />
+              </div>
               <div className={`player-artwork-card ${player.isPlaying ? "playing" : ""}`}>
                 <img
                   src={player.imgSrc || makeFallbackSVG(song.name, song.color)}
@@ -289,7 +295,7 @@ export default function PlayerView({
         </div>
 
         {/* Section: Related Tracks by Same Artist */}
-        {relatedSongs.length > 0 && (
+        {/* {relatedSongs.length > 0 && (
           <div className="player-related-section">
             <h2 className="related-title">
               More by {song.artists.length === 1 ? song.artists[0] : song.artists.join(" & ")}
@@ -308,7 +314,7 @@ export default function PlayerView({
               startIndex={(relatedPage - 1) * 15}
             />
           </div>
-        )}
+        )} */}
 
         <div className="home-footer">MusePlay • Redesigned Premium Web Interface • {songsCount} tracks loaded</div>
       </div>

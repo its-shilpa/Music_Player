@@ -1740,6 +1740,8 @@ body {
   height: auto;
   aspect-ratio: 1 / 1;
   max-width: 100%;
+  perspective: 1000px;
+  transform-style: preserve-3d;
 }
 
 /* Ambient glow container matching artwork colors */
@@ -2692,7 +2694,7 @@ body {
 /* ══ SONG CARD GRID (SMALL CARDS) ══ */
 .song-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: 20px;
   padding: 8px 0 24px;
 }
@@ -2864,7 +2866,7 @@ body {
 /* Adjust card columns on smaller mobile screens */
 @media (max-width: 480px) {
   .song-card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
   .song-card {
@@ -3430,5 +3432,101 @@ body {
     height: 380px;
     margin-top: 12px;
     padding: 20px 16px;
+  }
+}
+
+/* ══ 3D ROTATING ORBIT RINGS ══ */
+.player-artwork-orbit-rings {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1; /* Floating behind card (z-index 2), in front of background ambient glow */
+  transform-style: preserve-3d;
+}
+
+.orbit-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  transition: border-color 0.8s ease;
+}
+
+.orbit-ring.ring-1 {
+  width: 108%;
+  height: 108%;
+  border: 1.5px dashed rgba(var(--accent-rgb), 0.5);
+  animation: rotateRing1 12s linear infinite;
+}
+
+.orbit-ring.ring-2 {
+  width: 118%;
+  height: 118%;
+  border: 1.2px dotted rgba(255, 255, 255, 0.22);
+  animation: rotateRing2 16s linear infinite;
+}
+
+.orbit-ring.ring-3 {
+  width: 128%;
+  height: 128%;
+  border: 1.5px dashed rgba(var(--accent-secondary-rgb, 186, 84, 245), 0.4);
+  animation: rotateRing3 20s linear infinite;
+}
+
+/* Handle playback pauses smoothly */
+.player-artwork-orbit-rings.paused .orbit-ring {
+  animation-play-state: paused;
+}
+
+/* Centered 3D planetary rotation animations */
+@keyframes rotateRing1 {
+  0% {
+    transform: translate(-50%, -50%) rotateX(65deg) rotateY(0deg) rotateZ(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotateX(65deg) rotateY(360deg) rotateZ(360deg);
+  }
+}
+
+@keyframes rotateRing2 {
+  0% {
+    transform: translate(-50%, -50%) rotateX(-45deg) rotateY(0deg) rotateZ(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotateX(-45deg) rotateY(-360deg) rotateZ(-360deg);
+  }
+}
+
+@keyframes rotateRing3 {
+  0% {
+    transform: translate(-50%, -50%) rotateX(30deg) rotateY(0deg) rotateZ(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotateX(30deg) rotateY(360deg) rotateZ(360deg);
+  }
+}
+
+/* ══ CARD GRID FIXED COLUMN MEDIA OVERRIDES ══ */
+@media (max-width: 1200px) {
+  .song-card-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .song-card-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .song-card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
   }
 }
