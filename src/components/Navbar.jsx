@@ -4,8 +4,9 @@
 // dark/light mode toggle, play queue toggle, and favorites page route.
 
 import { useState, useRef, useEffect } from "react";
-import { Search, X, Sun, Moon, ListMusic, Music, Heart } from "lucide-react";
+import { Search, X, Sun, Moon, ListMusic, Music, Heart, Mic } from "lucide-react";
 import SongThumb from "./SongThumb";
+import { useVoiceSearch } from "../hooks/useVoiceSearch";
 
 export default function Navbar({
   searchQuery,
@@ -22,6 +23,14 @@ export default function Navbar({
 }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchContainerRef = useRef(null);
+
+  // AI FEATURE: voice search. Runs entirely in-browser (Web Speech API),
+  // no key/backend needed. Speaking a query fills the search box exactly
+  // like typing it would, so it plugs into the existing debounced search.
+  const { isListening, isSupported, start, stop } = useVoiceSearch((transcript) => {
+    onSearchChange(transcript);
+    setShowSuggestions(true);
+  });
 
   // Close suggestions dropdown when clicking outside
   useEffect(() => {
@@ -85,7 +94,21 @@ export default function Navbar({
               <X size={16} />
             </button>
           )}
+
+          {/* Voice search mic - only rendered if the browser actually supports it */}
+          {isSupported && (
+            <button
+              type="button"
+              className={`home-search-mic ${isListening ? "listening" : ""}`}
+              title={isListening ? "Listening… click to stop" : "Search by voice"}
+              onClick={() => (isListening ? stop() : start())}
+            >
+              <Mic size={16} />
+            </button>
+          )}
         </div>
+
+        
 
         {/* Live Search Suggestions Dropdown */}
         {showSuggestions && suggestions.length > 0 && (
