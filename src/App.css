@@ -1717,12 +1717,17 @@ body {
 .player-main-layout {
   display: grid;
   grid-template-columns: 28% minmax(0, 42fr) 30%;
+  grid-template-areas: "art details side";
   gap: 32px;
   padding: 24px 40px 48px;
   align-items: flex-start;
   max-width: 1500px;
   margin: 0 auto;
 }
+
+.player-artwork-column { grid-area: art; }
+.player-details-column { grid-area: details; }
+.player-side-panel { grid-area: side; }
 
 /* Left Column: Big Album Art with soft glow */
 .player-artwork-column {
@@ -2034,11 +2039,41 @@ body {
 }
 
 /* Responsive Detailed Player layout */
+
+/* Tablet / small laptop stage: keep artwork + details side by side,
+   drop the third column down as a full-width row instead of jumping
+   straight to a single stacked column. Avoids the abrupt collapse
+   that used to happen between 992px and the old single breakpoint. */
+@media (max-width: 1200px) {
+  .player-main-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    grid-template-areas:
+      "art details"
+      "side side";
+    gap: 24px;
+    padding: 20px 32px 40px;
+  }
+
+  .player-artwork-glow-wrapper {
+    width: min(260px, 100%);
+  }
+
+  .player-side-panel {
+    height: 340px;
+    margin-top: 0;
+  }
+}
+
+/* Tablet portrait / large phones: stack everything vertically */
 @media (max-width: 992px) {
   .player-main-layout {
     grid-template-columns: 1fr;
-    gap: 32px;
-    padding: 16px 32px;
+    grid-template-areas:
+      "art"
+      "details"
+      "side";
+    gap: 24px;
+    padding: 16px 24px 32px;
   }
   
   .player-artwork-column {
@@ -2056,9 +2091,29 @@ body {
   }
 
   .player-side-panel {
-    grid-column: span 1;
     height: 380px;
-    margin-top: 16px;
+    margin-top: 0;
+  }
+}
+
+/* Small phones: tighten padding further so nothing overflows horizontally */
+@media (max-width: 480px) {
+  .player-main-layout {
+    padding: 12px 16px 28px;
+    gap: 16px;
+  }
+
+  .player-artwork-glow-wrapper {
+    width: min(220px, 90%);
+  }
+
+  .player-details-column {
+    padding: 16px;
+  }
+
+  .player-side-panel {
+    height: 320px;
+    padding: 16px;
   }
 }
 
@@ -3408,32 +3463,13 @@ body {
   transform: scale(1.25);
 }
 
-/* Media Query overrides for side panel reflow */
-@media (max-width: 1200px) {
-  .player-main-layout {
-    grid-template-columns: 1fr !important;
-    gap: 32px !important;
-  }
-  .player-side-panel {
-    grid-column: span 1 !important;
-    height: 420px;
-    margin-top: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  .player-main-layout {
-    grid-template-columns: 1fr !important;
-    gap: 24px !important;
-    padding: 16px 20px !important;
-  }
-  .player-side-panel {
-    grid-column: span 1 !important;
-    height: 380px;
-    margin-top: 12px;
-    padding: 20px 16px;
-  }
-}
+/* NOTE: player-main-layout / player-side-panel responsive rules were
+   previously duplicated here with !important, silently overriding the
+   tablet (1200px) and mobile (992px/480px) rules defined earlier in
+   this file. Consolidated into the single set of breakpoints near
+   ".player-main-layout" above — see the 1200px / 992px / 480px queries
+   there. Keeping only one source of truth avoids the two rule-sets
+   fighting each other and breaking the tablet layout. */
 
 /* ══ 3D ROTATING ORBIT RINGS ══ */
 .player-artwork-orbit-rings {
