@@ -11,6 +11,7 @@ import SongGrid from "../components/SongGrid";
 import MiniPlayer from "../components/MiniPlayer";
 import SongThumb from "../components/SongThumb";
 import CarouselContainer from "../components/CarouselContainer";
+import MoodPlaylist from "../components/MoodPlaylist";
 import { SONGS_PER_PAGE } from "../constants/genres";
 
 export default function HomeView({
@@ -91,6 +92,20 @@ export default function HomeView({
         {/* Render Discovery components only if no search queries and artist filters are active */}
         {!searchQuery && !selectedArtist && (
           <>
+            {/* AI FEATURE: mood-based playlist generator */}
+              <div className="featured-hero-container" style={{ paddingBottom: 0 }}>
+                <MoodPlaylist
+                  songs={songs}
+                  favorites={favorites}
+                  toggleFavorite={toggleFavorite}
+                  onAddToQueue={handleAddToQueue}
+                  onPlayAll={(id, orderedIds) => {
+                    player.playFromQueue(id, orderedIds);
+                    onOpenPlayer();
+                  }}
+                />
+              </div>
+
             {/* Featured Hero Section */}
             {featuredSong && (
               <div className="featured-hero-container">
