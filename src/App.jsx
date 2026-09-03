@@ -18,11 +18,12 @@ import { buildGenres } from "./utils/buildGenres";
 import { SONGS_PER_PAGE } from "./constants/genres";
 import { getGenreTheme } from "./constants/genreThemes";
 
-import AmbientBackground from "./components/AmbientBackground";
+import AmbientBackground, { AI_MOOD_THEMES } from "./components/AmbientBackground";
 import HomeView from "./pages/HomeView";
 import PlayerView from "./pages/PlayerView";
 import QueueDrawer from "./components/QueueDrawer";
 import FavoritesView from "./pages/FavoritesView";
+import MoodPlaylist from "./components/MoodPlaylist";
 
 // Utility to convert hex color values to RGB format for CSS translucency effects
 function hexToRgb(hex) {
@@ -46,6 +47,8 @@ export default function App() {
   const [view, setView] = useState("home"); // "home" | "player"
   const [darkMode, setDarkMode] = useState(true);
   const [isQueueOpen, setIsQueueOpen] = useState(false);
+  const [isGeminiOpen, setIsGeminiOpen] = useState(false);
+  const [aiMood, setAiMood] = useState(null); // "rainy" | "night" | "workout" | "party" | "cozy" | "heartbreak"
 
   // ── Library / User States ──────────────────────────────────
   const [favorites, setFavorites] = useState(() => {
@@ -227,11 +230,12 @@ export default function App() {
     "Holiday"
   ][cycleIndex];
 
-  const activeTheme = getGenreTheme(activeBackgroundGenre);
+  const activeMoodTheme = aiMood && AI_MOOD_THEMES[aiMood] ? AI_MOOD_THEMES[aiMood] : null;
+  const activeTheme = activeMoodTheme || getGenreTheme(activeBackgroundGenre);
 
   return (
     <div 
-      className={`app ${darkMode ? "dark" : "light"}`}
+      className={`app ${darkMode ? "dark" : "light"} ${aiMood ? `ai-mood-${aiMood}` : ""}`}
       style={{
         "--accent": activeTheme.accent,
         "--accent-rgb": hexToRgb(activeTheme.accent),
@@ -241,8 +245,12 @@ export default function App() {
     >
       <div className="app-container">
         <div className="overlay">
-          {/* Cinematic dynamic background layer */}
-          <AmbientBackground genre={activeBackgroundGenre} />
+          {/* Cinematic dynamic background layer with weather & AI mood overlays */}
+          <AmbientBackground
+            genre={activeBackgroundGenre}
+            aiMood={aiMood}
+            onResetMood={() => setAiMood(null)}
+          />
 
           {/* Loading Catalog State */}
           {!initialLoaded && loading && (
@@ -295,6 +303,7 @@ export default function App() {
                 setView("home");
               }}
               activeView="home"
+              onOpenGemini={() => setIsGeminiOpen(true)}
             />
           )}
 
@@ -320,6 +329,7 @@ export default function App() {
               toggleFavorite={toggleFavorite}
               onOpenQueue={() => setIsQueueOpen(true)}
               onGoToFavorites={() => setView("favorites")}
+              onOpenGemini={() => setIsGeminiOpen(true)}
             />
           )}
 
@@ -341,6 +351,32 @@ export default function App() {
               onOpenQueue={() => setIsQueueOpen(true)}
               onGoToFavorites={() => setView("favorites")}
               activeView="favorites"
+            />
+          )}
+
+          {/* ══ GLOBAL FLOATING GEMINI AI MOOD DJ (Active on Home, Player, Favorites) ══ */}
+          {initialLoaded && !error && (
+            <MoodPlaylist
+              songs={songs}
+              favorites={favorites}
+              toggleFavorite={toggleFavorite}
+              onAddToQueue={(id) => {
+                player.setQueue((prev) => {
+                  const current = player.currentSong ? [player.currentSong.id] : [];
+                  const baseQ = prev || current;
+                  if (baseQ.includes(id)) return prev;
+                  return [...baseQ, id];
+                });
+              }}
+              onPlayAll={(id, orderedIds) => {
+                player.playFromQueue(id, orderedIds);
+                setView("player");
+              }}
+              hasMiniPlayer={view === "home" && !!player.currentSong}
+              isOpen={isGeminiOpen}
+              onToggleOpen={setIsGeminiOpen}
+              onMoodChange={setAiMood}
+              activeMood={aiMood}
             />
           )}
 

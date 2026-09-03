@@ -20,6 +20,17 @@ const QUICK_MOODS = [
   { label: "Party Dance", icon: Radio, prompt: "energetic party dance crowd pleasing bangers" },
 ];
 
+export function detectMoodType(moodText, tags = []) {
+  const combined = `${moodText || ""} ${(tags || []).join(" ")}`.toLowerCase();
+  if (/rain|monsoon|drizzle|storm|water|thunder|cloud/.test(combined)) return "rainy";
+  if (/workout|gym|fire|adrenaline|beast|fitness|heavy|power/.test(combined)) return "workout";
+  if (/night|midnight|stars|space|dark|nocturnal|sleep|deep/.test(combined)) return "night";
+  if (/party|dance|club|disco|electro|banger/.test(combined)) return "party";
+  if (/coffee|cafe|acoustic|cozy|warm|sun|morning|autumn/.test(combined)) return "cozy";
+  if (/sad|heartbreak|cry|grief|pain|alone|lonely|hurt/.test(combined)) return "heartbreak";
+  return null;
+}
+
 export default function MoodPlaylist({
   songs,
   favorites = [],
@@ -29,6 +40,8 @@ export default function MoodPlaylist({
   hasMiniPlayer = false,
   isOpen: controlledIsOpen,
   onToggleOpen,
+  onMoodChange,
+  activeMood,
 }) {
   const { mood, setMood, picks, playlistTitle, djIntro, vibeTags, loading, error, generate, clear } = useMoodPlaylist(songs);
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -50,14 +63,26 @@ export default function MoodPlaylist({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen]);
 
+  // Sync detected mood when vibeTags change
+  useEffect(() => {
+    if (vibeTags.length > 0 && onMoodChange) {
+      const detected = detectMoodType(mood, vibeTags);
+      if (detected) onMoodChange(detected);
+    }
+  }, [vibeTags, mood, onMoodChange]);
+
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     if (!mood.trim()) return;
+    const detected = detectMoodType(mood);
+    if (detected && onMoodChange) onMoodChange(detected);
     generate();
   };
 
   const handleChipClick = (promptText) => {
     setMood(promptText);
+    const detected = detectMoodType(promptText);
+    if (detected && onMoodChange) onMoodChange(detected);
     setTimeout(() => {
       generate(promptText);
     }, 50);
@@ -65,6 +90,8 @@ export default function MoodPlaylist({
 
   const handlePlayAll = () => {
     if (picks.length === 0) return;
+    const detected = detectMoodType(mood, vibeTags);
+    if (detected && onMoodChange) onMoodChange(detected);
     onPlayAll(picks[0].song.id, picks.map((p) => p.song.id));
   };
 
@@ -106,7 +133,7 @@ export default function MoodPlaylist({
                     <span className="gemini-model-badge">Gemini 3.8 Flash</span>
                   </div>
                   <p className="gemini-panel-subtitle">
-                    Tell Gemini your mood or vibe, and it curates a custom playlist from your songs.
+                    Tell Gemini your mood or vibe, and it curates a custom playlist while transforming the atmosphere.
                   </p>
                 </div>
               </div>
@@ -132,6 +159,32 @@ export default function MoodPlaylist({
                     onClick={() => handleChipClick(prompt)}
                   >
                     <Icon size={13} />
+                    <span>{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Ambient Atmosphere Mode Toggle */}
+            <div className="gemini-atmosphere-section">
+              <div className="gemini-chips-label">Ambient UI Atmosphere</div>
+              <div className="gemini-atmosphere-buttons">
+                {[
+                  { id: "rainy", label: "Rainy & Monsoon", icon: "🌧️" },
+                  { id: "night", label: "Midnight Stars", icon: "🌙" },
+                  { id: "workout", label: "Adrenaline Fire", icon: "⚡" },
+                  { id: "cozy", label: "Warm Acoustic", icon: "☕" },
+                  { id: "party", label: "Neon Party", icon: "🎉" },
+                  { id: "heartbreak", label: "Heartbreak", icon: "💔" },
+                ].map(({ id, label, icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`gemini-atmosphere-btn ${activeMood === id ? "active" : ""}`}
+                    onClick={() => onMoodChange?.(activeMood === id ? null : id)}
+                    title={`Toggle ${label} atmosphere`}
+                  >
+                    <span>{icon}</span>
                     <span>{label}</span>
                   </button>
                 ))}

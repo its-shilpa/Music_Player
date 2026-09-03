@@ -4,7 +4,7 @@
 // right column embeds details, progress sliders, a waveform, and controls.
 
 import { useState, useRef, useEffect } from "react";
-import { Heart, ListMusic, Home, Sun, Moon, ListPlus } from "lucide-react";
+import { Heart, ListMusic, Home, Sun, Moon, ListPlus, Sparkles } from "lucide-react";
 import { makeFallbackSVG } from "../utils/fallbackArt";
 import { getLyricsForSong } from "../utils/lyricsProvider";
 import ProgressBar from "../components/ProgressBar";
@@ -29,6 +29,7 @@ export default function PlayerView({
   toggleFavorite,
   onOpenQueue,
   onGoToFavorites,
+  onOpenGemini,
 }) {
   const song = player.currentSong;
   if (!song) return null;
@@ -134,6 +135,17 @@ export default function PlayerView({
               onClick={onOpenQueue}
             >
               <ListMusic size={18} />
+            </button>
+          )}
+
+          {/* Gemini AI DJ button */}
+          {onOpenGemini && (
+            <button 
+              className="nav-btn gemini-nav-btn" 
+              title="Open Gemini AI DJ"
+              onClick={onOpenGemini}
+            >
+              <Sparkles size={18} />
             </button>
           )}
 

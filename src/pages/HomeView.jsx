@@ -43,6 +43,7 @@ export default function HomeView({
   onGoToFavorites,
   onGoHome,
   activeView = "home",
+  onOpenGemini,
 }) {
   // Determine Featured Hero song (prefer current playing song, otherwise the first track in catalog)
   const featuredSong = player.currentSong || songs[0];
@@ -103,7 +104,7 @@ export default function HomeView({
         {!searchQuery && !selectedArtist && (
           <>
             {/* Home Page Library Search Bar */}
-            {/* <div className="home-search-hero-container">
+            <div className="home-search-hero-container">
               <div className="home-search-hero-wrap">
                 <span className="home-search-icon">
                   <Search size={19} />
@@ -140,13 +141,13 @@ export default function HomeView({
                   </button>
                 )}
               </div>
-            </div> */}
+            </div>
 
             {/* Dedicated Gemini AI DJ Studio Banner */}
-            {/* <div className="gemini-studio-banner-container">
+            <div className="gemini-studio-banner-container">
               <div
                 className="gemini-studio-banner"
-                onClick={() => setIsGeminiOpen(true)}
+                onClick={onOpenGemini}
                 role="button"
                 tabIndex={0}
               >
@@ -160,7 +161,7 @@ export default function HomeView({
                       <span className="gemini-studio-tag">AI Curation</span>
                     </div>
                     <p className="gemini-studio-desc">
-                      Describe any mood, story, or activity (e.g. <em>“late night rainy drive”</em> or <em>“workout hype”</em>) and Gemini will craft an AI Mixtape with DJ commentary.
+                      Describe any mood, story, or activity (e.g. <em>“late night rainy drive”</em> or <em>“workout hype”</em>) and Gemini will craft an AI Mixtape with ambient atmosphere & DJ commentary.
                     </p>
                   </div>
                 </div>
@@ -170,14 +171,14 @@ export default function HomeView({
                   className="gemini-studio-open-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setIsGeminiOpen(true);
+                    onOpenGemini?.();
                   }}
                 >
                   <Sparkles size={16} />
                   <span>Launch AI DJ</span>
                 </button>
               </div>
-            </div> */}
+            </div>
 
             {/* Featured Hero Section */}
             {featuredSong && (
@@ -400,21 +401,6 @@ export default function HomeView({
           onVolumeChange={player.setVolume}
         />
       )}
-
-      {/* ══ FLOATING GEMINI AI MOOD DJ ══ */}
-      <MoodPlaylist
-        songs={songs}
-        favorites={favorites}
-        toggleFavorite={toggleFavorite}
-        onAddToQueue={handleAddToQueue}
-        onPlayAll={(id, orderedIds) => {
-          player.playFromQueue(id, orderedIds);
-          onOpenPlayer();
-        }}
-        hasMiniPlayer={!!player.currentSong}
-        isOpen={isGeminiOpen}
-        onToggleOpen={setIsGeminiOpen}
-      />
     </div>
   );
 }
