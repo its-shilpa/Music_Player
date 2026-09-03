@@ -104,7 +104,7 @@ export default function HomeView({
         {!searchQuery && !selectedArtist && (
           <>
             {/* Home Page Library Search Bar */}
-            <div className="home-search-hero-container">
+            {/* <div className="home-search-hero-container">
               <div className="home-search-hero-wrap">
                 <span className="home-search-icon">
                   <Search size={19} />
@@ -141,10 +141,10 @@ export default function HomeView({
                   </button>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Dedicated Gemini AI DJ Studio Banner */}
-            <div className="gemini-studio-banner-container">
+            {/* <div className="gemini-studio-banner-container">
               <div
                 className="gemini-studio-banner"
                 onClick={onOpenGemini}
@@ -178,7 +178,7 @@ export default function HomeView({
                   <span>Launch AI DJ</span>
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* Featured Hero Section */}
             {featuredSong && (

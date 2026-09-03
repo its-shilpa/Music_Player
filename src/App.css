@@ -3555,37 +3555,159 @@ body {
     width: 100%;
   }
 
-  /* Navbar responsive tweaks */
+  /* ══ FULL RESPONSIVE NAVBARS & HEADERS ══ */
+  /* Home & Favorites top navbar */
   .home-nav {
-    padding: 12px 16px !important;
-    gap: 12px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 16px !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
   }
 
-  .brand-name {
-    display: none; /* Hide brand name on small mobile to give room to search */
-  }
-
-  .home-search-container {
-    max-width: 100% !important;
-  }
-
-  .home-search-wrap {
-    padding: 8px 12px !important;
-  }
-
-  .nav-actions {
+  .home-nav-brand {
+    order: 1 !important;
+    flex-shrink: 0 !important;
     gap: 8px !important;
   }
 
-  h2.section-title {
-    font-size: 21px;
-  } 
-  .nav-btn {
-    width: 35px;
-    height: 35px;
+  .brand-name {
+    display: inline-block !important;
+    font-size: 17px !important;
+    letter-spacing: -0.3px !important;
   }
 
-  /* Reduce mobile layout paddings to solve horizontal scroll overflows */
+  .brand-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .nav-actions {
+    order: 2 !important;
+    margin-left: auto !important;
+    gap: 8px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .nav-btn {
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .nav-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .home-search-container {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    margin-top: 2px !important;
+  }
+
+  .home-search-wrap {
+    width: 100% !important;
+    padding: 8px 14px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Player view navbar */
+  .player-nav {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 14px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .player-back-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    gap: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .player-back-btn span {
+    display: none !important;
+  }
+
+  .player-nav-title.live-now {
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+    padding: 4px 8px !important;
+    gap: 5px !important;
+    overflow: hidden !important;
+  }
+
+  .live-text {
+    font-size: 10.5px !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .player-nav .nav-actions {
+    gap: 6px !important;
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .player-nav .nav-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .player-nav .nav-btn svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  /* Favorites page header */
+  .favorites-header-block {
+    padding: 16px 16px 8px !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .favorites-back-btn {
+    width: auto !important;
+    height: 36px !important;
+    padding: 0 14px !important;
+    border-radius: 20px !important;
+    align-self: flex-start !important;
+  }
+
+  .favorites-title-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .favorites-title-text {
+    font-size: 20px !important;
+  }
+
   .section-block, .songs-section {
     padding-left: 16px !important;
     padding-right: 16px !important;
@@ -3593,38 +3715,6 @@ body {
 
   .song-row {
     padding: 10px 8px !important;
-  }
-
-  /* Player nav responsive tweaks */
-  .player-nav {
-    padding: 12px 16px !important;
-    gap: 12px !important;
-  }
-
-  .player-nav-title.live-now {
-    padding: 4px 10px !important;
-    gap: 6px !important;
-  }
-
-  .live-text {
-    font-size: 10px !important;
-    letter-spacing: 1px !important;
-  }
-
-  /* Back buttons to circle icon buttons on mobile */
-  .player-back-btn,
-  .favorites-back-btn {
-    width: 38px !important;
-    height: 38px !important;
-    padding: 0 !important;
-    justify-content: center !important;
-    border-radius: 50% !important;
-    gap: 0 !important;
-  }
-  
-  .player-back-btn span,
-  .favorites-back-btn span {
-    display: none !important;
   }
 
   /* Detailed player content updates on smaller screens */
@@ -4658,5 +4748,182 @@ body {
 
   .gemini-results-container {
     padding: 0 20px 20px;
+  }
+}
+
+/* ══ GLOBAL MOBILE OVERFLOW HARDENING & COMPACT VIEWPORTS ══ */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.app, 
+.app-container, 
+.overlay, 
+.home-view, 
+.player-view, 
+.home-scroll-area, 
+.player-scroll-area {
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  /* Navbar extra compact styles */
+  .home-nav {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+
+  .home-nav-brand {
+    gap: 6px !important;
+  }
+
+  .brand-name {
+    font-size: 15.5px !important;
+  }
+
+  .brand-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .nav-actions {
+    gap: 6px !important;
+  }
+
+  .nav-btn {
+    width: 33px !important;
+    height: 33px !important;
+    min-width: 33px !important;
+  }
+
+  .nav-btn svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .home-search-wrap {
+    padding: 7px 12px !important;
+  }
+
+  .home-search-input {
+    font-size: 13px !important;
+  }
+
+  /* Player Navbar compact layout */
+  .player-nav {
+    padding: 8px 10px !important;
+    gap: 6px !important;
+  }
+
+  .player-back-btn {
+    width: 33px !important;
+    height: 33px !important;
+    min-width: 33px !important;
+  }
+
+  .player-nav-title.live-now {
+    padding: 3px 6px !important;
+    gap: 4px !important;
+  }
+
+  .player-nav-title.live-now .live-text {
+    display: none !important; /* Hide "Now Playing" text to guarantee zero header overflow */
+  }
+
+  .player-nav .nav-actions {
+    gap: 4px !important;
+  }
+
+  .player-nav .nav-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+  }
+
+  .player-nav .nav-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Favorites header compact */
+  .favorites-header-block {
+    padding: 12px 12px 6px !important;
+    gap: 8px !important;
+  }
+
+  .favorites-back-btn {
+    height: 32px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+  }
+
+  .favorites-title-text {
+    font-size: 18px !important;
+  }
+
+  /* Mini player compact */
+  .mini-player-bar {
+    height: 64px !important;
+    padding: 0 12px !important;
+  }
+
+  .mini-player-thumb {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .mini-player-title {
+    font-size: 12.5px !important;
+  }
+
+  .mini-player-artist {
+    font-size: 11px !important;
+  }
+
+  /* Detailed player layout compact */
+  .player-main-layout {
+    padding: 8px 12px !important;
+    gap: 14px !important;
+  }
+
+  .player-artwork-glow-wrapper {
+    width: min(200px, 75vw) !important;
+  }
+
+  .player-details-column {
+    padding: 14px 12px !important;
+    gap: 12px !important;
+  }
+
+  .player-song-title {
+    font-size: 18px !important;
+  }
+
+  .player-artist-name {
+    font-size: 12.5px !important;
+  }
+
+  .waveform-container {
+    height: 48px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand-name {
+    display: none !important; /* On ultra narrow screens, show icon only */
+  }
+
+  .nav-btn {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .player-nav .nav-btn {
+    width: 29px !important;
+    height: 29px !important;
+    min-width: 29px !important;
   }
 }
