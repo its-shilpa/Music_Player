@@ -3,7 +3,8 @@
 // Features a featured song Hero, scrollable carousels with chevron buttons
 // (Recently Played, Explore Genres, Artists), and a responsive song table/card-grid.
 
-import { Play, Pause, Heart, ListPlus, Compass, History, ListMusic, Home } from "lucide-react";
+import { useState } from "react";
+import { Play, Pause, Heart, ListPlus, Compass, History, ListMusic, Home, Search, X, Mic, Sparkles } from "lucide-react";
 import Navbar from "../components/Navbar";
 import GenreChips from "../components/GenreChips";
 import ArtistBubble from "../components/ArtistBubble";
@@ -13,6 +14,7 @@ import SongThumb from "../components/SongThumb";
 import CarouselContainer from "../components/CarouselContainer";
 import MoodPlaylist from "../components/MoodPlaylist";
 import { SONGS_PER_PAGE } from "../constants/genres";
+import { useVoiceSearch } from "../hooks/useVoiceSearch";
 
 export default function HomeView({
   songs,
@@ -67,6 +69,14 @@ export default function HomeView({
   // Determine whether to show small cards view or detailed table list
   const isGridView = !!selectedArtist || activeGenre !== "All";
 
+  const [isGeminiOpen, setIsGeminiOpen] = useState(false);
+
+  const { isListening, isSupported, start, stop } = useVoiceSearch((transcript) => {
+    onSearchChange(transcript);
+    onGenreChange("All");
+    onArtistChange(null);
+  });
+
   return (
     <div className="home-view">
       {/* Top Header Bar */}
@@ -92,19 +102,82 @@ export default function HomeView({
         {/* Render Discovery components only if no search queries and artist filters are active */}
         {!searchQuery && !selectedArtist && (
           <>
-            {/* AI FEATURE: mood-based playlist generator */}
-              <div className="featured-hero-container" style={{ paddingBottom: 0 }}>
-                <MoodPlaylist
-                  songs={songs}
-                  favorites={favorites}
-                  toggleFavorite={toggleFavorite}
-                  onAddToQueue={handleAddToQueue}
-                  onPlayAll={(id, orderedIds) => {
-                    player.playFromQueue(id, orderedIds);
-                    onOpenPlayer();
+            {/* Home Page Library Search Bar */}
+            <div className="home-search-hero-container">
+              <div className="home-search-hero-wrap">
+                <span className="home-search-icon">
+                  <Search size={19} />
+                </span>
+                <input
+                  type="text"
+                  className="home-search-input"
+                  placeholder="Search tracks by name, artist, or genre..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    onSearchChange(e.target.value);
+                    onGenreChange("All");
+                    onArtistChange(null);
                   }}
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className="home-search-clear"
+                    onClick={() => onSearchChange("")}
+                    title="Clear search"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+                {isSupported && (
+                  <button
+                    type="button"
+                    className={`home-search-mic ${isListening ? "listening" : ""}`}
+                    title={isListening ? "Listening… click to stop" : "Search by voice"}
+                    onClick={() => (isListening ? stop() : start())}
+                  >
+                    <Mic size={17} />
+                  </button>
+                )}
               </div>
+            </div>
+
+            {/* Dedicated Gemini AI DJ Studio Banner */}
+            <div className="gemini-studio-banner-container">
+              <div
+                className="gemini-studio-banner"
+                onClick={() => setIsGeminiOpen(true)}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="gemini-studio-banner-left">
+                  <div className="gemini-studio-sparkle-box">
+                    <Sparkles size={22} />
+                  </div>
+                  <div>
+                    <div className="gemini-studio-title-row">
+                      <h3 className="gemini-studio-title">Gemini AI Music DJ</h3>
+                      <span className="gemini-studio-tag">AI Curation</span>
+                    </div>
+                    <p className="gemini-studio-desc">
+                      Describe any mood, story, or activity (e.g. <em>“late night rainy drive”</em> or <em>“workout hype”</em>) and Gemini will craft an AI Mixtape with DJ commentary.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="gemini-studio-open-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsGeminiOpen(true);
+                  }}
+                >
+                  <Sparkles size={16} />
+                  <span>Launch AI DJ</span>
+                </button>
+              </div>
+            </div>
 
             {/* Featured Hero Section */}
             {featuredSong && (
@@ -327,6 +400,21 @@ export default function HomeView({
           onVolumeChange={player.setVolume}
         />
       )}
+
+      {/* ══ FLOATING GEMINI AI MOOD DJ ══ */}
+      <MoodPlaylist
+        songs={songs}
+        favorites={favorites}
+        toggleFavorite={toggleFavorite}
+        onAddToQueue={handleAddToQueue}
+        onPlayAll={(id, orderedIds) => {
+          player.playFromQueue(id, orderedIds);
+          onOpenPlayer();
+        }}
+        hasMiniPlayer={!!player.currentSong}
+        isOpen={isGeminiOpen}
+        onToggleOpen={setIsGeminiOpen}
+      />
     </div>
   );
 }
