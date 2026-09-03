@@ -21,7 +21,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+// Model alias that Google keeps pointed at their current GA Flash model,
+// so this doesn't silently break again next time a model gets retired.
+// (gemini-2.5-flash, which this used to point to, is deprecated for new
+// API keys as of mid-2026 - if you ever see 404s again, this is the
+// first thing to check: https://ai.google.dev/gemini-api/docs/models)
+const GEMINI_MODEL = "gemini-flash-latest";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 // POST /api/recommend
@@ -60,7 +65,14 @@ app.post("/api/recommend", async (req, res) => {
     if (!response.ok) {
       const errText = await response.text();
       console.error("Gemini error:", errText);
-      return res.status(502).json({ error: "Gemini request failed" });
+      // Try to pull Google's actual message out so the UI can show something
+      // useful instead of a generic "unavailable" (e.g. bad key, deprecated
+      // model, quota exceeded all look identical otherwise).
+      let detail = "Gemini request failed";
+      try {
+        detail = JSON.parse(errText)?.error?.message || detail;
+      } catch { /* not JSON, keep default */ }
+      return res.status(502).json({ error: detail });
     }
 
     const data = await response.json();
