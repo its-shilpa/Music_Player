@@ -5,9 +5,13 @@
 // key shouldn't be exposed in browser code, since someone could copy it
 // and burn through your daily quota.
 //
-// Run with:  npm install express cors dotenv
-//            node server/index.js
-// Then in src/, fetch("http://localhost:3001/api/recommend", {...})
+// Local dev:  npm install express cors dotenv
+//             node server/index.js
+// Then in src/, fetch(`${import.meta.env.VITE_API_URL}/api/recommend`, {...})
+//
+// Live deploy: hosted on Render (or similar) as its own service, separate
+// from the Netlify-hosted static frontend. Set GEMINI_API_KEY as an
+// environment variable in Render's dashboard (not just your local .env).
 //
 // Get a free key (no credit card) at https://aistudio.google.com/apikey
 // and put it in .env as: GEMINI_API_KEY=your-key-here
@@ -18,7 +22,25 @@ import express from "express";
 import cors from "cors";
 
 const app = express();
-app.use(cors());
+
+// Only allow requests from known frontends — local dev and the live
+// Netlify site. Update these if your dev port or Netlify URL differ.
+const allowedOrigins = [
+  "http://localhost:5173",               // Vite dev server default
+  "https://reactjs-musicapp.netlify.app" // live Netlify URL
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (curl, Postman, server-to-server) and allowed origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+}));
+
 app.use(express.json());
 
 // Model alias that Google keeps pointed at their current GA Flash model,
@@ -35,9 +57,12 @@ const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GE
 if (!process.env.GEMINI_API_KEY) {
   console.warn(
     "\n⚠️  GEMINI_API_KEY is not set.\n" +
+    "   Local dev:\n" +
     "   1. Copy .env.example to .env in the project root\n" +
     "   2. Paste your key from https://aistudio.google.com/apikey\n" +
-    "   3. Restart this server (env vars are only read on startup)\n"
+    "   3. Restart this server (env vars are only read on startup)\n" +
+    "   Live (Render):\n" +
+    "   Set GEMINI_API_KEY under Environment in the Render dashboard.\n"
   );
 }
 
@@ -69,7 +94,7 @@ async function resolveItunesTrack(name, artist) {
 // Intelligent Music AI Synthesizer: provides high-quality AI DJ curation if external API quota is rate-limited
 function synthesizeAiMixtape(mood, songs) {
   const lower = (mood || "").toLowerCase();
-  
+
   let title = "Personalized AI Vibe";
   let djIntro = "Hey! I've analyzed your prompt and crafted this personalized AI sequence to match your energy and emotional tone.";
   let vibeTags = ["✨ AI Curated", "🎧 Custom Flow", "🎵 Harmonics"];
@@ -116,7 +141,7 @@ function synthesizeAiMixtape(mood, songs) {
     const sName = (s.name || "").toLowerCase();
     const sGenre = (s.genre || "").toLowerCase();
     const sArtist = ((s.artists && s.artists[0]) || "").toLowerCase();
-    
+
     const isMatch = candidateTerms.some((term) => sName.includes(term.toLowerCase())) ||
                     lower.split(" ").some((w) => w.length > 3 && (sName.includes(w) || sGenre.includes(w) || sArtist.includes(w)));
     if (isMatch && !seen.has(s.id)) {
@@ -150,7 +175,7 @@ app.post("/api/recommend", async (req, res) => {
 
   if (!process.env.GEMINI_API_KEY) {
     return res.status(500).json({
-      error: "Server has no GEMINI_API_KEY configured. Add it to .env and restart `node server/index.js`.",
+      error: "Server has no GEMINI_API_KEY configured. Add it to .env locally, or to Environment Variables in Render for the live server.",
     });
   }
 
@@ -253,7 +278,6 @@ ${JSON.stringify(catalog)}`;
     // Resolve catalog picks
     const finalPicks = [];
     const seenIds = new Set();
-
     if (Array.isArray(aiResult.catalogPicks)) {
       for (const pick of aiResult.catalogPicks) {
         const song = songs.find((s) => String(s.id).trim() === String(pick.id).trim());
@@ -277,7 +301,6 @@ ${JSON.stringify(catalog)}`;
           }
           return null;
         });
-
       const resolvedTracks = (await Promise.all(resolvePromises)).filter(Boolean);
       finalPicks.push(...resolvedTracks);
     }
@@ -294,4 +317,6 @@ ${JSON.stringify(catalog)}`;
   }
 });
 
-app.listen(3001, () => console.log("AI recommend server on http://localhost:3001"));
+// Render (and most Node hosts) inject their own PORT — falls back to 3001 for local dev.
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`AI recommend server on port ${PORT}`));
