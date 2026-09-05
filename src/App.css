@@ -4869,15 +4869,18 @@ html, body {
     padding: 0 12px !important;
   }
 
+  .mini-thumb,
   .mini-player-thumb {
     width: 44px !important;
     height: 44px !important;
   }
 
+  .mini-song-name,
   .mini-player-title {
     font-size: 12.5px !important;
   }
 
+  .mini-artist,
   .mini-player-artist {
     font-size: 11px !important;
   }

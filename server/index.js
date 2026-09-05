@@ -20,25 +20,21 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.join(__dirname, "../dist");
 
 const app = express();
 
-// Only allow requests from known frontends — local dev and the live
-// Netlify site. Update these if your dev port or Netlify URL differ.
-const allowedOrigins = [
-  "http://localhost:5173",               // Vite dev server default
-  "https://reactjs-musicapp.netlify.app" // live Netlify URL
-];
-
+// Allow requests from all origins (local dev, Netlify, Vercel, Render, custom portfolio domains)
 app.use(cors({
-  origin: (origin, callback) => {
-    // allow requests with no origin (curl, Postman, server-to-server) and allowed origins
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }
+  origin: true,
+  credentials: true,
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
@@ -330,6 +326,17 @@ ${JSON.stringify(catalog)}`;
     console.error(err);
     res.status(500).json({ error: `Recommendation failed: ${err.message}` });
   }
+});
+
+// Serve frontend client if built in dist/
+app.use(express.static(distPath));
+
+// Fallback to index.html for SPA routes (if not an API or health check route)
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api") || req.path === "/health") return next();
+  res.sendFile(path.join(distPath, "index.html"), (err) => {
+    if (err) next();
+  });
 });
 
 // Render (and most Node hosts) inject their own PORT — falls back to 3001 for local dev.
