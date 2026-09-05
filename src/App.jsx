@@ -49,6 +49,7 @@ export default function App() {
   const [isQueueOpen, setIsQueueOpen] = useState(false);
   const [isGeminiOpen, setIsGeminiOpen] = useState(false);
   const [aiMood, setAiMood] = useState(null); // "rainy" | "night" | "workout" | "party" | "cozy" | "heartbreak"
+  const [geminiPlaylistIds, setGeminiPlaylistIds] = useState(new Set());
 
   // ── Library / User States ──────────────────────────────────
   const [favorites, setFavorites] = useState(() => {
@@ -167,18 +168,39 @@ export default function App() {
 
   // Play from Home browse row: sets the current page/filter list as the active queue
   const playSongFromHome = useCallback((id) => {
+    const idStr = String(id);
+    if (aiMood && !geminiPlaylistIds.has(idStr)) {
+      setAiMood(null);
+      setGeminiPlaylistIds(new Set());
+    }
     player.playFromQueue(id, homeSongs.map((s) => s.id));
     setView("player");
-  }, [homeSongs, player]);
+  }, [homeSongs, player, aiMood, geminiPlaylistIds]);
 
   // Play from Related shelves: creates a new queue with the selected song and its related songs
   const playSongFromRelated = useCallback((id) => {
+    const idStr = String(id);
+    if (aiMood && !geminiPlaylistIds.has(idStr)) {
+      setAiMood(null);
+      setGeminiPlaylistIds(new Set());
+    }
     const clicked = songs.find((s) => s.id === id);
     const newRelated = songs.filter(
       (s) => s.id !== id && clicked && s.artists.some((a) => clicked.artists.includes(a))
     );
     player.playFromQueue(id, [id, ...newRelated.map((s) => s.id)]);
-  }, [songs, player]);
+  }, [songs, player, aiMood, geminiPlaylistIds]);
+
+  // If a song starts playing outside the Gemini AI playlist, automatically revert the background to normal
+  useEffect(() => {
+    if (aiMood && player.currentSong?.id) {
+      const currentIdStr = String(player.currentSong.id);
+      if (geminiPlaylistIds.size > 0 && !geminiPlaylistIds.has(currentIdStr)) {
+        setAiMood(null);
+        setGeminiPlaylistIds(new Set());
+      }
+    }
+  }, [player.currentSong?.id, aiMood, geminiPlaylistIds]);
 
   const removeFromQueue = useCallback((songId) => {
     player.setQueue((prev) => {
@@ -249,7 +271,10 @@ export default function App() {
           <AmbientBackground
             genre={activeBackgroundGenre}
             aiMood={aiMood}
-            onResetMood={() => setAiMood(null)}
+            onResetMood={() => {
+              setAiMood(null);
+              setGeminiPlaylistIds(new Set());
+            }}
           />
 
           {/* Loading Catalog State */}
@@ -369,6 +394,7 @@ export default function App() {
                 });
               }}
               onPlayAll={(id, orderedIds) => {
+                setGeminiPlaylistIds(new Set((orderedIds || []).map(String)));
                 player.playFromQueue(id, orderedIds);
                 setView("player");
               }}
