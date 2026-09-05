@@ -10,7 +10,9 @@
 
 import { useState, useCallback } from "react";
 
-const RECOMMEND_URL = "http://localhost:3001/api/recommend";
+const API_BASE_URL = import.meta.env.VITE_AI_API_BASE_URL;
+
+const RECOMMEND_URL = `${API_BASE_URL}/api/recommend`;
 
 export function useMoodPlaylist(songs) {
   const [mood, setMood] = useState("");
