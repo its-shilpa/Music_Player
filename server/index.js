@@ -168,6 +168,21 @@ function synthesizeAiMixtape(mood, songs) {
   return { playlistTitle: title, djIntro, vibeTags, picks };
 }
 
+// Health check routes
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "MusePlay AI Server is running 🎵🤖",
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+  });
+});
+
 // POST /api/recommend
 // body: { mood: "rainy day, need something calm", songs: [{id,name,artists,genre}, ...] }
 app.post("/api/recommend", async (req, res) => {
