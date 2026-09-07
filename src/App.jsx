@@ -279,13 +279,22 @@ export default function App() {
 
           {/* Loading Catalog State */}
           {!initialLoaded && loading && (
-            <div className="home-empty" style={{ paddingTop: "8rem", zIndex: 10 }}>
-              <div className="song-row-playing-indicator" style={{ width: "24px", height: "24px", margin: "0 auto 16px" }}>
-                <div className="song-row-playing-bar" style={{ width: "4px" }} />
-                <div className="song-row-playing-bar" style={{ width: "4px" }} />
-                <div className="song-row-playing-bar" style={{ width: "4px" }} />
+            <div className="app-loader-screen">
+              <div className="app-loader-card">
+                <div className="app-loader-logo">
+                  <div className="app-loader-icon-box">
+                    <span style={{ fontSize: "20px" }}>♪</span>
+                  </div>
+                  <span className="app-loader-brand">MusePlay</span>
+                </div>
+                <div className="app-loader-wave">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <div className="app-loader-text">Loading catalog & recommendations…</div>
               </div>
-              <div className="home-empty-text" style={{ fontSize: "16px", fontWeight: 600 }}>Loading MusePlay Catalog…</div>
             </div>
           )}
 

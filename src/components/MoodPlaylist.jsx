@@ -6,7 +6,7 @@
 // describe a mood in natural language or pick from quick vibe chips.
 // Gemini curates a matching playlist from the existing catalog.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sparkles, Loader2, Play, X, Heart, ListPlus, Radio, Flame, Moon, CloudRain, Coffee, HeartCrack } from "lucide-react";
 import { useMoodPlaylist } from "../hooks/useMoodPlaylist";
 import SongThumb from "./SongThumb";
@@ -51,6 +51,19 @@ export default function MoodPlaylist({
     if (onToggleOpen) onToggleOpen(val);
     else setInternalIsOpen(val);
   };
+
+  const resultsRef = useRef(null);
+  const panelBodyRef = useRef(null);
+
+  // Auto-scroll to results when generated so they are immediately visible on mobile & desktop
+  useEffect(() => {
+    if (picks.length > 0 && resultsRef.current) {
+      const timer = setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [picks]);
 
   // Close modal on Escape key
   useEffect(() => {
@@ -147,8 +160,10 @@ export default function MoodPlaylist({
               </button>
             </div>
 
-            {/* Quick Inspiration Mood Chips */}
-            <div className="gemini-mood-chips-section">
+            {/* Scrollable Modal Content Body */}
+            <div className="gemini-panel-body" ref={panelBodyRef}>
+              {/* Quick Inspiration Mood Chips */}
+              <div className="gemini-mood-chips-section">
               <div className="gemini-chips-label">Quick Vibes</div>
               <div className="gemini-mood-chips">
                 {QUICK_MOODS.map(({ label, icon: Icon, prompt }) => (
@@ -255,7 +270,7 @@ export default function MoodPlaylist({
 
             {/* Curated Results List */}
             {!loading && picks.length > 0 && (
-              <div className="gemini-results-container">
+              <div className="gemini-results-container" ref={resultsRef}>
                 {/* AI DJ Mixtape Header & Commentary */}
                 <div className="gemini-mixtape-card">
                   <div className="gemini-mixtape-header-row">
@@ -352,6 +367,7 @@ export default function MoodPlaylist({
                 </div>
               </div>
             )}
+            </div>
           </div>
         </div>
       )}

@@ -12,13 +12,46 @@
     <meta property="og:title" content="MusePlay — AI Music Player & Generative DJ" />
     <meta property="og:description" content="Listen to tracks, view synchronized lyrics, and curate custom playlists with Gemini AI Mood DJ." />
     
+    <!-- DNS prefetch & preconnect for rapid loading -->
+    <link rel="preconnect" href="https://itunes.apple.com" crossorigin />
+    <link rel="dns-prefetch" href="https://itunes.apple.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
     <title>MusePlay — AI Music Player & Generative DJ</title>
-    <script type="module" crossorigin src="/assets/index-Bb1Ot-88.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DIq6YZk0.css">
+    <script type="module" crossorigin src="/assets/index-C9V5jPLe.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-mVdLjrhH.css">
   </head>
 
-  <body>
-    <div id="root"></div>
+  <body style="margin: 0; background: #07070d; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased;">
+    <div id="root">
+      <!-- High-performance inline splash preloader preventing raw black text and white flash -->
+      <div id="app-splash-preloader" style="position: fixed; inset: 0; background: #07070d; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; color: #ffffff;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+          <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #a855f7 0%, #4285f4 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(168, 85, 247, 0.45);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l12-2v13"></path>
+              <circle cx="6" cy="18" r="3"></circle>
+              <circle cx="18" cy="16" r="3"></circle>
+            </svg>
+          </div>
+          <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">MusePlay</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4.5px; height: 24px; margin-bottom: 12px;">
+          <div style="width: 3.5px; height: 14px; background: #a855f7; border-radius: 2px; animation: splashPulse 0.7s ease-in-out infinite alternate;"></div>
+          <div style="width: 3.5px; height: 24px; background: #c084fc; border-radius: 2px; animation: splashPulse 0.7s ease-in-out 0.2s infinite alternate;"></div>
+          <div style="width: 3.5px; height: 16px; background: #60a5fa; border-radius: 2px; animation: splashPulse 0.7s ease-in-out 0.4s infinite alternate;"></div>
+          <div style="width: 3.5px; height: 22px; background: #a855f7; border-radius: 2px; animation: splashPulse 0.7s ease-in-out 0.6s infinite alternate;"></div>
+        </div>
+        <div style="font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.65); letter-spacing: 0.2px;">Starting MusePlay…</div>
+        <style>
+          @keyframes splashPulse {
+            0% { transform: scaleY(0.25); opacity: 0.4; }
+            100% { transform: scaleY(1); opacity: 1; }
+          }
+        </style>
+      </div>
+    </div>
 
   </body>
 </html>
