@@ -2,10 +2,11 @@
 // One clickable row representing a song. 
 // Structures columns: Index/Equalizer/Play, Info (art + title + artists), Genre badge, Actions.
 
+import { memo } from "react";
 import { Play, Pause, Heart, ListPlus } from "lucide-react";
 import SongThumb from "./SongThumb";
 
-export default function SongRow({
+function SongRow({
   song,
   isActive,
   isPlaying,
@@ -88,3 +89,5 @@ export default function SongRow({
     </div>
   );
 }
+
+export default memo(SongRow);

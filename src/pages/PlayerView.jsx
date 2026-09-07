@@ -3,7 +3,7 @@
 // Uses an asymmetric split layout: left column contains the glowing artwork,
 // right column embeds details, progress sliders, a waveform, and controls.
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { Heart, ListMusic, Home, Sun, Moon, ListPlus, Sparkles } from "lucide-react";
 import { makeFallbackSVG } from "../utils/fallbackArt";
 import { getLyricsForSong } from "../utils/lyricsProvider";
@@ -12,7 +12,7 @@ import Waveform from "../components/Waveform";
 import PlayerControls from "../components/PlayerControls";
 import SongGrid from "../components/SongGrid";
 
-export default function PlayerView({
+function PlayerView({
   player,
   songs = [],
   darkMode,
@@ -95,70 +95,72 @@ export default function PlayerView({
     <div className="player-view">
       {/* Top Navbar */}
       <div className="player-nav">
-        <button className="player-back-btn" onClick={onGoHome}>
-          <Home size={16} />
-          <span>Dashboard</span>
-        </button>
-        
-        <div className="player-nav-title live-now">
-          <span className="live-indicator">
-            <span className="live-dot" />
-            <span className="live-pulse" />
-          </span>
-          <span className="live-text">Now Playing</span>
-          {player.isPlaying && (
-            <div className="live-equalizer">
-              <span className="eq-bar" />
-              <span className="eq-bar" />
-              <span className="eq-bar" />
-            </div>
-          )}
-        </div>
-        
-        <div className="nav-actions">
-          {/* Open Favorites Page */}
-          {onGoToFavorites && (
-            <button 
-              className="nav-btn" 
-              title="Favorite Songs"
-              onClick={onGoToFavorites}
-            >
-              <Heart size={18} />
-            </button>
-          )}
-
-          {/* Open Queue panel */}
-          {onOpenQueue && (
-            <button 
-              className="nav-btn" 
-              title="Open Queue"
-              onClick={onOpenQueue}
-            >
-              <ListMusic size={18} />
-            </button>
-          )}
-
-          {/* Gemini AI DJ button */}
-          {onOpenGemini && (
-            <button 
-              className="nav-btn gemini-nav-btn" 
-              title="Open Gemini AI DJ"
-              onClick={onOpenGemini}
-            >
-              <Sparkles size={18} />
-            </button>
-          )}
-
-          {/* Dark mode toggle */}
-          <button className="nav-btn" onClick={onToggleDarkMode}>
-            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+        <div className="player-nav-inner site-container">
+          <button className="player-back-btn" onClick={onGoHome}>
+            <Home size={16} />
+            <span>Dashboard</span>
           </button>
+          
+          <div className="player-nav-title live-now">
+            <span className="live-indicator">
+              <span className="live-dot" />
+              <span className="live-pulse" />
+            </span>
+            <span className="live-text">Now Playing</span>
+            {player.isPlaying && (
+              <div className="live-equalizer">
+                <span className="eq-bar" />
+                <span className="eq-bar" />
+                <span className="eq-bar" />
+              </div>
+            )}
+          </div>
+          
+          <div className="nav-actions">
+            {/* Open Favorites Page */}
+            {onGoToFavorites && (
+              <button 
+                className="nav-btn" 
+                title="Favorite Songs"
+                onClick={onGoToFavorites}
+              >
+                <Heart size={18} />
+              </button>
+            )}
+
+            {/* Open Queue panel */}
+            {onOpenQueue && (
+              <button 
+                className="nav-btn" 
+                title="Open Queue"
+                onClick={onOpenQueue}
+              >
+                <ListMusic size={18} />
+              </button>
+            )}
+
+            {/* Gemini AI DJ button */}
+            {onOpenGemini && (
+              <button 
+                className="nav-btn gemini-nav-btn" 
+                title="Open Gemini AI DJ"
+                onClick={onOpenGemini}
+              >
+                <Sparkles size={18} />
+              </button>
+            )}
+
+            {/* Dark mode toggle */}
+            <button className="nav-btn" onClick={onToggleDarkMode}>
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="player-scroll-area">
         {/* Main Panel: Artwork & Detail Panel */}
-        <div className="player-main-layout">
+        <div className="player-main-layout site-container">
           
           {/* Left Column: Artwork with pulsing dynamic glow */}
           <div className="player-artwork-column">
@@ -313,7 +315,7 @@ export default function PlayerView({
 
         {/* Section: Related Tracks by Same Artist */}
         {/* {relatedSongs.length > 0 && (
-          <div className="player-related-section">
+          <div className="player-related-section site-container">
             <h2 className="related-title">
               More by {song.artists.length === 1 ? song.artists[0] : song.artists.join(" & ")}
             </h2>
@@ -333,8 +335,10 @@ export default function PlayerView({
           </div>
         )} */}
 
-        <div className="home-footer">MusePlay • Redesigned Premium Web Interface • {songsCount} tracks loaded</div>
+        <div className="home-footer site-container">MusePlay • Redesigned Premium Web Interface • {songsCount} tracks loaded</div>
       </div>
     </div>
   );
 }
+
+export default memo(PlayerView);

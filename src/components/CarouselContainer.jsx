@@ -4,10 +4,10 @@
 // It uses React refs and ResizeObservers to dynamically show or hide arrows
 // depending on whether scrolling is possible in either direction.
 
-import { useRef, useState, useEffect, Children } from "react";
+import { useRef, useState, useEffect, Children, memo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function CarouselContainer({ children, paddingClass = "" }) {
+function CarouselContainer({ children, paddingClass = "" }) {
   const scrollRef = useRef(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
@@ -24,11 +24,13 @@ export default function CarouselContainer({ children, paddingClass = "" }) {
     }
   };
 
+  const childrenCount = Children.count(children);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (el) {
       checkScrollLimits();
-      el.addEventListener("scroll", checkScrollLimits);
+      el.addEventListener("scroll", checkScrollLimits, { passive: true });
       
       // Observe resize to adjust arrow states if viewport changes
       const resizeObserver = new ResizeObserver(() => checkScrollLimits());
@@ -39,7 +41,7 @@ export default function CarouselContainer({ children, paddingClass = "" }) {
         resizeObserver.disconnect();
       };
     }
-  }, [children]);
+  }, [childrenCount]);
 
   // Smooth scroll offset logic
   const handleScroll = (direction) => {
@@ -96,3 +98,5 @@ export default function CarouselContainer({ children, paddingClass = "" }) {
     </div>
   );
 }
+
+export default memo(CarouselContainer);

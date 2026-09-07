@@ -3,10 +3,11 @@
 // Front face: Full-size artwork with bottom details overlay.
 // Back face: Blurred backdrop, centered play/pause controls, and action buttons.
 
+import { memo } from "react";
 import { Play, Pause, Heart, ListPlus } from "lucide-react";
 import SongThumb from "./SongThumb";
 
-export default function SongFlipCard({
+function SongFlipCard({
   song,
   isActive,
   isPlaying,
@@ -83,3 +84,5 @@ export default function SongFlipCard({
     </div>
   );
 }
+
+export default memo(SongFlipCard);

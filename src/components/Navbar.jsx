@@ -3,12 +3,12 @@
 // an interactive search bar with matching live suggestions,
 // dark/light mode toggle, play queue toggle, and favorites page route.
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { Search, X, Sun, Moon, ListMusic, Music, Heart, Mic } from "lucide-react";
 import SongThumb from "./SongThumb";
 import { useVoiceSearch } from "../hooks/useVoiceSearch";
 
-export default function Navbar({
+function Navbar({
   searchQuery,
   onSearchChange,
   onClearSearch,
@@ -64,8 +64,9 @@ export default function Navbar({
 
   return (
     <nav className="home-nav">
-      {/* Brand Logo & Title */}
-      <div className="home-nav-brand" onClick={handleBrandClick}>
+      <div className="home-nav-inner site-container">
+        {/* Brand Logo & Title */}
+        <div className="home-nav-brand" onClick={handleBrandClick}>
         <span className="brand-icon">
           <Music size={24} strokeWidth={2.5} />
         </span>
@@ -190,6 +191,9 @@ export default function Navbar({
           {darkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
       </div>
+      </div>
     </nav>
   );
 }
+
+export default memo(Navbar);

@@ -8,7 +8,7 @@
 //   - state hooks for audio player and catalog loading
 // It also sets the active theme accent colors as CSS variables dynamically.
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import "./App.css";
 
 import { useSongs } from "./hooks/useSongs";
@@ -37,8 +37,8 @@ function hexToRgb(hex) {
 export default function App() {
   // ── Data Loading: Fetch songs catalog ───────────────────────
   const { songs, loading, error, search, loadDefaultCatalog } = useSongs();
-  const artists = buildArtists(songs);
-  const genres = buildGenres(songs);
+  const artists = useMemo(() => buildArtists(songs), [songs]);
+  const genres = useMemo(() => buildGenres(songs), [songs]);
 
   // ── Audio/Player Engine (hook handles HTML5 audio events) ─────
   const player = useAudioPlayer(songs);
@@ -127,16 +127,24 @@ export default function App() {
   }, [searchQuery, view]);
 
   // ── Derived States: Filter catalog for the browse screen ────
-  const homeSongs = songs.filter((s) => {
-    const genreMatch = activeGenre === "All" || s.genre === activeGenre;
-    const artistMatch = selectedArtist ? s.artists.includes(selectedArtist) : true;
-    return genreMatch && artistMatch;
-  });
-  const homeTotalPages = Math.ceil(homeSongs.length / SONGS_PER_PAGE) || 1;
-  const pagedHomeSongs = homeSongs.slice(
-    (homePage - 1) * SONGS_PER_PAGE,
-    homePage * SONGS_PER_PAGE
-  );
+  const homeSongs = useMemo(() => {
+    return songs.filter((s) => {
+      const genreMatch = activeGenre === "All" || s.genre === activeGenre;
+      const artistMatch = selectedArtist ? s.artists.includes(selectedArtist) : true;
+      return genreMatch && artistMatch;
+    });
+  }, [songs, activeGenre, selectedArtist]);
+
+  const homeTotalPages = useMemo(() => {
+    return Math.ceil(homeSongs.length / SONGS_PER_PAGE) || 1;
+  }, [homeSongs.length]);
+
+  const pagedHomeSongs = useMemo(() => {
+    return homeSongs.slice(
+      (homePage - 1) * SONGS_PER_PAGE,
+      homePage * SONGS_PER_PAGE
+    );
+  }, [homeSongs, homePage]);
 
   // Reset browse view back to page 1 on filter changes
   useEffect(() => {
@@ -144,16 +152,23 @@ export default function App() {
   }, [searchQuery, activeGenre, selectedArtist]);
 
   // ── Derived States: Related songs list on player screen ─────
-  const relatedSongs = currentSong
-    ? songs.filter(
-        (s) => s.id !== currentSong.id && s.artists.some((a) => currentSong.artists.includes(a))
-      )
-    : [];
-  const relatedTotalPages = Math.ceil(relatedSongs.length / SONGS_PER_PAGE) || 1;
-  const pagedRelatedSongs = relatedSongs.slice(
-    (relatedPage - 1) * SONGS_PER_PAGE,
-    relatedPage * SONGS_PER_PAGE
-  );
+  const relatedSongs = useMemo(() => {
+    if (!currentSong) return [];
+    return songs.filter(
+      (s) => s.id !== currentSong.id && s.artists.some((a) => currentSong.artists.includes(a))
+    );
+  }, [currentSong, songs]);
+
+  const relatedTotalPages = useMemo(() => {
+    return Math.ceil(relatedSongs.length / SONGS_PER_PAGE) || 1;
+  }, [relatedSongs.length]);
+
+  const pagedRelatedSongs = useMemo(() => {
+    return relatedSongs.slice(
+      (relatedPage - 1) * SONGS_PER_PAGE,
+      relatedPage * SONGS_PER_PAGE
+    );
+  }, [relatedSongs, relatedPage]);
 
   useEffect(() => {
     setRelatedPage(1);
@@ -164,6 +179,21 @@ export default function App() {
     setFavorites((prev) =>
       prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
     );
+  }, []);
+
+  const handleToggleDarkMode = useCallback(() => setDarkMode((d) => !d), []);
+  const handleOpenPlayer = useCallback(() => setView("player"), []);
+  const handleOpenQueue = useCallback(() => setIsQueueOpen(true), []);
+  const handleCloseQueue = useCallback(() => setIsQueueOpen(false), []);
+  const handleGoToFavorites = useCallback(() => setView("favorites"), []);
+  const handleGoHome = useCallback(() => {
+    setSearchQuery("");
+    setView("home");
+  }, []);
+  const handleOpenGemini = useCallback(() => setIsGeminiOpen(true), []);
+  const handleResetMood = useCallback(() => {
+    setAiMood(null);
+    setGeminiPlaylistIds(new Set());
   }, []);
 
   // Play from Home browse row: sets the current page/filter list as the active queue
@@ -219,7 +249,7 @@ export default function App() {
     player.setQueue(player.currentSong ? [player.currentSong.id] : null);
   }, [player]);
 
-  // ── Dynamic Themes: Auto-cycles every 5 seconds ────────────
+  // ── Dynamic Themes: Auto-cycles every 15 seconds (reduced frequency for performance) ────────────
   const [cycleIndex, setCycleIndex] = useState(0);
   
   useEffect(() => {
@@ -236,7 +266,7 @@ export default function App() {
     ];
     const timer = setInterval(() => {
       setCycleIndex((prev) => (prev + 1) % CYCLING_THEMES.length);
-    }, 5000);
+    }, 15000);
     return () => clearInterval(timer);
   }, []);
 
@@ -253,7 +283,24 @@ export default function App() {
   ][cycleIndex];
 
   const activeMoodTheme = aiMood && AI_MOOD_THEMES[aiMood] ? AI_MOOD_THEMES[aiMood] : null;
-  const activeTheme = activeMoodTheme || getGenreTheme(activeBackgroundGenre);
+  const activeTheme = useMemo(() => {
+    return activeMoodTheme || getGenreTheme(activeBackgroundGenre);
+  }, [activeMoodTheme, activeBackgroundGenre]);
+
+  const handleAddToQueue = useCallback((id) => {
+    player.setQueue((prev) => {
+      const current = player.currentSong ? [player.currentSong.id] : [];
+      const baseQ = prev || current;
+      if (baseQ.includes(id)) return prev;
+      return [...baseQ, id];
+    });
+  }, [player]);
+
+  const handlePlayAll = useCallback((id, orderedIds) => {
+    setGeminiPlaylistIds(new Set((orderedIds || []).map(String)));
+    player.playFromQueue(id, orderedIds);
+    setView("player");
+  }, [player]);
 
   return (
     <div 
@@ -271,10 +318,7 @@ export default function App() {
           <AmbientBackground
             genre={activeBackgroundGenre}
             aiMood={aiMood}
-            onResetMood={() => {
-              setAiMood(null);
-              setGeminiPlaylistIds(new Set());
-            }}
+            onResetMood={handleResetMood}
           />
 
           {/* Loading Catalog State */}
@@ -323,21 +367,18 @@ export default function App() {
               homeTotalPages={homeTotalPages}
               onHomePageChange={setHomePage}
               darkMode={darkMode}
-              onToggleDarkMode={() => setDarkMode((d) => !d)}
+              onToggleDarkMode={handleToggleDarkMode}
               player={player}
               onPlaySong={playSongFromHome}
-              onOpenPlayer={() => setView("player")}
+              onOpenPlayer={handleOpenPlayer}
               favorites={favorites}
               toggleFavorite={toggleFavorite}
               recentlyPlayed={recentlyPlayed}
-              onOpenQueue={() => setIsQueueOpen(true)}
-              onGoToFavorites={() => setView("favorites")}
-              onGoHome={() => {
-                setSearchQuery("");
-                setView("home");
-              }}
+              onOpenQueue={handleOpenQueue}
+              onGoToFavorites={handleGoToFavorites}
+              onGoHome={handleGoHome}
               activeView="home"
-              onOpenGemini={() => setIsGeminiOpen(true)}
+              onOpenGemini={handleOpenGemini}
             />
           )}
 
@@ -347,11 +388,8 @@ export default function App() {
               player={player}
               songs={songs}
               darkMode={darkMode}
-              onToggleDarkMode={() => setDarkMode((d) => !d)}
-              onGoHome={() => {
-                setSearchQuery("");
-                setView("home");
-              }}
+              onToggleDarkMode={handleToggleDarkMode}
+              onGoHome={handleGoHome}
               relatedSongs={relatedSongs}
               pagedRelatedSongs={pagedRelatedSongs}
               relatedPage={relatedPage}
@@ -361,9 +399,9 @@ export default function App() {
               songsCount={songs.length}
               favorites={favorites}
               toggleFavorite={toggleFavorite}
-              onOpenQueue={() => setIsQueueOpen(true)}
-              onGoToFavorites={() => setView("favorites")}
-              onOpenGemini={() => setIsGeminiOpen(true)}
+              onOpenQueue={handleOpenQueue}
+              onGoToFavorites={handleGoToFavorites}
+              onOpenGemini={handleOpenGemini}
             />
           )}
 
@@ -374,16 +412,13 @@ export default function App() {
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               darkMode={darkMode}
-              onToggleDarkMode={() => setDarkMode((d) => !d)}
+              onToggleDarkMode={handleToggleDarkMode}
               player={player}
-              onGoHome={() => {
-                setSearchQuery("");
-                setView("home");
-              }}
+              onGoHome={handleGoHome}
               favorites={favorites}
               toggleFavorite={toggleFavorite}
-              onOpenQueue={() => setIsQueueOpen(true)}
-              onGoToFavorites={() => setView("favorites")}
+              onOpenQueue={handleOpenQueue}
+              onGoToFavorites={handleGoToFavorites}
               activeView="favorites"
             />
           )}
@@ -394,19 +429,8 @@ export default function App() {
               songs={songs}
               favorites={favorites}
               toggleFavorite={toggleFavorite}
-              onAddToQueue={(id) => {
-                player.setQueue((prev) => {
-                  const current = player.currentSong ? [player.currentSong.id] : [];
-                  const baseQ = prev || current;
-                  if (baseQ.includes(id)) return prev;
-                  return [...baseQ, id];
-                });
-              }}
-              onPlayAll={(id, orderedIds) => {
-                setGeminiPlaylistIds(new Set((orderedIds || []).map(String)));
-                player.playFromQueue(id, orderedIds);
-                setView("player");
-              }}
+              onAddToQueue={handleAddToQueue}
+              onPlayAll={handlePlayAll}
               hasMiniPlayer={view === "home" && !!player.currentSong}
               isOpen={isGeminiOpen}
               onToggleOpen={setIsGeminiOpen}
@@ -418,7 +442,7 @@ export default function App() {
           {/* Slide-over Queue Panel */}
           <QueueDrawer
             isOpen={isQueueOpen}
-            onClose={() => setIsQueueOpen(false)}
+            onClose={handleCloseQueue}
             songs={songs}
             queue={player.queue || songs.map((s) => s.id)}
             currentSongId={player.songIndex}

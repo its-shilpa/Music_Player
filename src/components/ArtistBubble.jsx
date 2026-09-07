@@ -2,12 +2,12 @@
 // One circular artist profile bubble. Resolves a dynamic profile image
 // from the artist's tracks, falls back to initials, and handles hover overlay play button.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Play } from "lucide-react";
 import { makeArtistFallbackSVG } from "../utils/fallbackArt";
 import { ARTIST_PHOTOS } from "../constants/artistPhotos";
 
-export default function ArtistBubble({ artist, onClick }) {
+function ArtistBubble({ artist, onClick }) {
   const [photoSrc, setPhotoSrc] = useState(
     () => ARTIST_PHOTOS[artist.name] || artist.image || makeArtistFallbackSVG(artist.name, artist.color)
   );
@@ -44,3 +44,5 @@ export default function ArtistBubble({ artist, onClick }) {
     </button>
   );
 }
+
+export default memo(ArtistBubble);

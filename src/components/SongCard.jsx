@@ -3,10 +3,11 @@
 // Features a large square artwork, hover play overlay, track details,
 // genre badge, heart favorite toggle, and queue list addition buttons.
 
+import { memo } from "react";
 import { Play, Pause, Heart, ListPlus } from "lucide-react";
 import SongThumb from "./SongThumb";
 
-export default function SongCard({
+function SongCard({
   song,
   isActive,
   isPlaying,
@@ -70,3 +71,5 @@ export default function SongCard({
     </div>
   );
 }
+
+export default memo(SongCard);

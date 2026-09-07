@@ -2,6 +2,7 @@
 // Upgraded Genre Cards. Renders Spotify-style visual category blocks
 // with colorful linear gradients, bold labels, and matching thematic Lucide icons.
 
+import { memo } from "react";
 import { 
   Film, Zap, Heart, Disc, Music, Sun, Radio, Snowflake, 
   Library, Clapperboard, Compass, Flame, Sparkles
@@ -88,7 +89,7 @@ function getGenreIconComponent(name) {
   return matchedKey ? GENRE_ICONS[matchedKey] : Music;
 }
 
-export default function GenreChips({ genres, activeGenre, onSelect }) {
+function GenreChips({ genres, activeGenre, onSelect }) {
   // Ensure "All" is in the list to reset filtering
   const genresList = genres.includes("All") ? genres : ["All", ...genres];
 
@@ -119,3 +120,5 @@ export default function GenreChips({ genres, activeGenre, onSelect }) {
     </>
   );
 }
+
+export default memo(GenreChips);

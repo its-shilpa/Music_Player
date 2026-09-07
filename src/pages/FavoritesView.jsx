@@ -2,12 +2,13 @@
 // Dedicated Favorites Page. Lists all tracks the user has marked as favorites.
 // Integrates play commands, toggle favorite triggers, and clear/empty state screens.
 
+import { memo, useMemo } from "react";
 import { Heart, Compass, Home } from "lucide-react";
 import Navbar from "../components/Navbar";
 import SongGrid from "../components/SongGrid";
 import MiniPlayer from "../components/MiniPlayer";
 
-export default function FavoritesView({
+function FavoritesView({
   songs,
   searchQuery,
   onSearchChange,
@@ -21,9 +22,11 @@ export default function FavoritesView({
   onGoToFavorites,
 }) {
   // Resolve song objects for the user's favorites list
-  const favoriteSongs = favorites
-    .map((fid) => songs.find((s) => s.id === fid))
-    .filter(Boolean);
+  const favoriteSongs = useMemo(() => {
+    return favorites
+      .map((fid) => songs.find((s) => s.id === fid))
+      .filter(Boolean);
+  }, [favorites, songs]);
 
   // Play favorites track, populating the queue with all favorited songs
   const playFavoriteTrack = (id) => {
@@ -62,7 +65,7 @@ export default function FavoritesView({
 
       <div className={`home-scroll-area ${player.currentSong ? "has-mini-player" : ""}`}>
         {/* Dedicated Favorites Page Header Block */}
-        <div className="favorites-header-block">
+        <div className="favorites-header-block site-container">
           <button className="favorites-back-btn" onClick={onGoHome}>
             <Home size={14} />
             <span>Dashboard</span>
@@ -79,7 +82,7 @@ export default function FavoritesView({
         </div>
 
         {/* Songs List Section */}
-        <div className="section-block songs-section">
+        <div className="section-block songs-section site-container">
           {favoriteSongs.length === 0 ? (
             <div 
               className="home-empty" 
@@ -116,7 +119,7 @@ export default function FavoritesView({
           )}
         </div>
 
-        <div className="home-footer">MusePlay • Redesigned Premium Web Interface</div>
+        <div className="home-footer site-container">MusePlay • Redesigned Premium Web Interface</div>
       </div>
 
       {/* Pinned Bottom Mini Player */}
@@ -136,3 +139,5 @@ export default function FavoritesView({
     </div>
   );
 }
+
+export default memo(FavoritesView);

@@ -2,10 +2,11 @@
 // Persistent sticky bar at the bottom of browsing views.
 // Renders song info, play controls, progress line, and volume slider.
 
+import { memo } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import SongThumb from "./SongThumb";
 
-export default function MiniPlayer({
+function MiniPlayer({
   song,
   isPlaying,
   progress,
@@ -23,7 +24,8 @@ export default function MiniPlayer({
         <div className="mini-progress-fill" style={{ width: `${progress}%` }} />
       </div>
 
-      {/* Left Column: Artwork and Info */}
+      <div className="mini-player-inner site-container">
+        {/* Left Column: Artwork and Info */}
       <div className="mini-player-left">
         <div className="mini-thumb">
           <SongThumb song={song} />
@@ -92,6 +94,9 @@ export default function MiniPlayer({
           />
         </div>
       </div>
+      </div>
     </div>
   );
 }
+
+export default memo(MiniPlayer);

@@ -2,12 +2,13 @@
 // Grid coordinator component supporting list rows, 3D flip card grids, and flat card grids.
 // layoutMode options: "list" | "grid-flip" | "grid-simple"
 
+import { memo } from "react";
 import SongRow from "./SongRow";
 import SongFlipCard from "./SongFlipCard";
 import SongCard from "./SongCard";
 import Pagination from "./Pagination";
 
-export default function SongGrid({
+function SongGrid({
   songs,
   activeSongId,
   isPlaying,
@@ -95,3 +96,5 @@ export default function SongGrid({
     </>
   );
 }
+
+export default memo(SongGrid);

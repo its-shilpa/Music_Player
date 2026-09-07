@@ -3,7 +3,7 @@
 // Features a featured song Hero, scrollable carousels with chevron buttons
 // (Recently Played, Explore Genres, Artists), and a responsive song table/card-grid.
 
-import { useState } from "react";
+import { useState, useMemo, memo } from "react";
 import { Play, Pause, Heart, ListPlus, Compass, History, ListMusic, Home, Search, X, Mic, Sparkles } from "lucide-react";
 import Navbar from "../components/Navbar";
 import GenreChips from "../components/GenreChips";
@@ -16,7 +16,7 @@ import MoodPlaylist from "../components/MoodPlaylist";
 import { SONGS_PER_PAGE } from "../constants/genres";
 import { useVoiceSearch } from "../hooks/useVoiceSearch";
 
-export default function HomeView({
+function HomeView({
   songs,
   artists,
   genres,
@@ -50,12 +50,13 @@ export default function HomeView({
   const isFeaturedPlaying = player.isPlaying && player.currentSong?.id === featuredSong?.id;
 
   // Resolve recently played tracks from history cache (max 8)
-  const historySongs = recentlyPlayed
-    .map((rid) => songs.find((s) => s.id === rid))
-    .filter(Boolean)
-    // Filter out the currently playing song to avoid showing duplicates
-    .filter((s) => s.id !== player.currentSong?.id)
-    .slice(0, 8);
+  const historySongs = useMemo(() => {
+    return recentlyPlayed
+      .map((rid) => songs.find((s) => s.id === rid))
+      .filter(Boolean)
+      .filter((s) => s.id !== player.currentSong?.id)
+      .slice(0, 8);
+  }, [recentlyPlayed, songs, player.currentSong?.id]);
 
   // Helper to append a track to the upcoming audio player queue
   const handleAddToQueue = (id) => {
@@ -182,7 +183,7 @@ export default function HomeView({
 
             {/* Featured Hero Section */}
             {featuredSong && (
-              <div className="featured-hero-container">
+              <div className="featured-hero-container site-container">
                 <div className="featured-hero">
                   <div className="featured-art-wrapper">
                     <SongThumb song={featuredSong} className="featured-cover-img" />
@@ -243,8 +244,8 @@ export default function HomeView({
 
             {/* Shelf: Recently Played (excluding currently playing, max 8, carousel-arrow-driven) */}
             {historySongs.length > 0 && (
-              <div className="section-block" style={{ paddingBottom: "8px" }}>
-                <h2 className="section-title" style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "25px" }}>
+              <div className="section-block site-container" style={{ paddingBottom: "8px" }}>
+                <h2 className="section-title">
                   <History size={18} style={{ color: "var(--accent)" }} />
                   <span>Recently Played</span>
                 </h2>
@@ -286,8 +287,8 @@ export default function HomeView({
 
         {/* Shelf: Genre Cards Slider (wrapped in CarouselContainer) */}
         {!searchQuery && (
-          <div className="section-block" style={{ paddingBottom: "8px" }}>
-            <h2 className="section-title" style={{ display: "flex", alignItems: "center", gap: "8px", paddingLeft: "25px" }}>
+          <div className="section-block site-container" style={{ paddingBottom: "8px" }}>
+            <h2 className="section-title">
               <Compass size={18} style={{ color: "var(--accent)" }} />
               <span>Browse Genres</span>
             </h2>
@@ -306,8 +307,8 @@ export default function HomeView({
 
         {/* Shelf: Popular Artists bubbles (wrapped in scrollbar-free carousel with chevrons) */}
         {!searchQuery && activeGenre === "All" && !selectedArtist && (
-          <div className="section-block" style={{ paddingBottom: "8px" }}>
-            <h2 className="section-title" style={{ paddingLeft: "25px" }}>Popular Artists</h2>
+          <div className="section-block site-container" style={{ paddingBottom: "8px" }}>
+            <h2 className="section-title">Popular Artists</h2>
             <CarouselContainer paddingClass="artists-carousel-content">
               {artists.map((artist) => (
                 <ArtistBubble
@@ -322,7 +323,7 @@ export default function HomeView({
 
         {/* Selected Artist Details Header Block (fixes overlap) */}
         {selectedArtist && (
-          <div className="favorites-header-block" style={{ paddingBottom: "0" }}>
+          <div className="favorites-header-block site-container" style={{ paddingBottom: "0" }}>
             <button className="favorites-back-btn" onClick={() => onArtistChange(null)}>
               <Home size={14} />
               <span>Dashboard</span>
@@ -340,7 +341,7 @@ export default function HomeView({
 
         {/* Search Results Details Header Block (fixes overlap) */}
         {searchQuery && (
-          <div className="favorites-header-block" style={{ paddingBottom: "0" }}>
+          <div className="favorites-header-block site-container" style={{ paddingBottom: "0" }}>
             <div className="favorites-title-row">
               <div className="favorites-title-left">
                 <span className="favorites-title-text">Results for "{searchQuery}"</span>
@@ -353,9 +354,9 @@ export default function HomeView({
         )}
 
         {/* Songs List / Card-Grid Section */}
-        <div className="section-block songs-section">
+        <div className="section-block songs-section site-container">
           {!searchQuery && !selectedArtist && (
-            <h2 className="section-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <h2 className="section-title">
               <ListMusic size={18} style={{ color: "var(--accent)" }} />
               <span>{activeGenre === "All" ? "All Songs" : activeGenre}</span>
             </h2>
@@ -384,7 +385,7 @@ export default function HomeView({
           )}
         </div>
 
-        <div className="home-footer">MusePlay • Redesigned Premium Web Interface • {songs.length} tracks loaded</div>
+        <div className="home-footer site-container">MusePlay • Redesigned Premium Web Interface • {songs.length} tracks loaded</div>
       </div>
 
       {/* Pinned Bottom Mini Player */}
@@ -404,3 +405,5 @@ export default function HomeView({
     </div>
   );
 }
+
+export default memo(HomeView);
