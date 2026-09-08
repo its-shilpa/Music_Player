@@ -142,7 +142,7 @@ export default function MoodPlaylist({
                 </div>
                 <div>
                   <div className="gemini-panel-title-row">
-                    <h3 className="gemini-panel-title">Gemini AI Mood DJ</h3>
+                    <h3 className="gemini-panel-title">Gemini AI Mood DjJ</h3>
                     <span className="gemini-model-badge">Gemini 3.8 Flash</span>
                   </div>
                   <p className="gemini-panel-subtitle">
