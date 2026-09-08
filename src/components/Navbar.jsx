@@ -64,7 +64,7 @@ function Navbar({
 
   return (
     <nav className="home-nav">
-      <div className="home-nav-inner site-container">
+      <div className="home-nav-inner site-container desktop-unique">
         {/* Brand Logo & Title */}
         <div className="home-nav-brand" onClick={handleBrandClick}>
         <span className="brand-icon">
