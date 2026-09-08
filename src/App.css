@@ -5343,12 +5343,20 @@ html, body {
     padding: 0 !important;
   }
 
-  .gemini-floating-panel {
+  /* .gemini-floating-panel {
     max-height: 96vh !important;
     height: 90vh !important;
     border-radius: 20px !important;
     border-bottom: none !important;
-  }
+  } */
+
+  .gemini-floating-panel {
+        border-bottom: none !important;
+        border-radius: 20px !important;
+        height: 100% !important;
+        max-height: 80vh !important;
+        margin: 10px;
+    }
 
   .gemini-panel-header {
     padding: 12px 14px 8px !important;
