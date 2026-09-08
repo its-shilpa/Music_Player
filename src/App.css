@@ -2244,6 +2244,8 @@ body {
   margin-bottom: 0;
   cursor: pointer;
   transition: var(--transition-fast);
+  content-visibility: auto;
+  contain-intrinsic-size: 56px;
 }
 
 .song-row:last-child {
@@ -3534,14 +3536,52 @@ body {
   100% { background-position: -200% 0; }
 }
 
-/* ══ PAGINATION ══ */
-.pagination {
+/* ══ INFINITE SCROLL LOADER & SENTINEL ══ */
+.infinite-scroll-sentinel {
+  width: 100%;
+  height: 20px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.infinite-scroll-loader {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 24px;
-  padding: 4px 0;
+  gap: 12px;
+  padding: 24px 0 32px;
+  width: 100%;
+}
+
+.infinite-scroll-wave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+}
+
+.infinite-scroll-wave span {
+  width: 3.5px;
+  background: var(--accent, #a855f7);
+  border-radius: 2px;
+  animation: loaderBounce 0.75s ease-in-out infinite alternate;
+}
+
+.infinite-scroll-wave span:nth-child(1) { height: 12px; animation-delay: 0.1s; }
+.infinite-scroll-wave span:nth-child(2) { height: 20px; animation-delay: 0.25s; }
+.infinite-scroll-wave span:nth-child(3) { height: 14px; animation-delay: 0.4s; }
+.infinite-scroll-wave span:nth-child(4) { height: 18px; animation-delay: 0.55s; }
+
+.infinite-scroll-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.2px;
+}
+
+/* ══ PAGINATION (HIDDEN / REPLACED WITH INFINITE SCROLL) ══ */
+.pagination {
+  display: none !important;
 }
 
 .page-btn {
@@ -4069,6 +4109,8 @@ body {
   overflow: hidden;
   width: 100%;
   box-sizing: border-box;
+  content-visibility: auto;
+  contain-intrinsic-size: 180px 240px;
 }
 
 .song-card::before {
@@ -4305,6 +4347,8 @@ body {
   width: 100%;
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
+  content-visibility: auto;
+  contain-intrinsic-size: 180px 180px;
 }
 
 .song-flip-card-inner {
@@ -4418,7 +4462,8 @@ body {
   filter: blur(4px) brightness(0.55) saturate(1.15);
   opacity: 0.92;
   z-index: 1;
-  transform: scale(1.06);
+  transform: scale(1.06) translateZ(0);
+  will-change: transform;
 }
 
 .song-card-back-blur img {

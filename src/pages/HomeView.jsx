@@ -3,7 +3,7 @@
 // Features a featured song Hero, scrollable carousels with chevron buttons
 // (Recently Played, Explore Genres, Artists), and a responsive song table/card-grid.
 
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { Play, Pause, Heart, ListPlus, Compass, History, ListMusic, Home, Search, X, Mic, Sparkles } from "lucide-react";
 import Navbar from "../components/Navbar";
 import GenreChips from "../components/GenreChips";
@@ -13,7 +13,6 @@ import MiniPlayer from "../components/MiniPlayer";
 import SongThumb from "../components/SongThumb";
 import CarouselContainer from "../components/CarouselContainer";
 import MoodPlaylist from "../components/MoodPlaylist";
-import { SONGS_PER_PAGE } from "../constants/genres";
 import { useVoiceSearch } from "../hooks/useVoiceSearch";
 
 function HomeView({
@@ -27,10 +26,6 @@ function HomeView({
   selectedArtist,
   onArtistChange,
   homeSongs,
-  pagedHomeSongs,
-  homePage,
-  homeTotalPages,
-  onHomePageChange,
   darkMode,
   onToggleDarkMode,
   player,
@@ -58,15 +53,17 @@ function HomeView({
       .slice(0, 8);
   }, [recentlyPlayed, songs, player.currentSong?.id]);
 
-  // Helper to append a track to the upcoming audio player queue
-  const handleAddToQueue = (id) => {
-    player.setQueue((prev) => {
-      const current = player.currentSong ? [player.currentSong.id] : [];
+  // Helper to append a track to the upcoming audio player queue (memoized to keep SongGrid props stable)
+  const playerSetQueue = player.setQueue;
+  const currentSongId = player.currentSong?.id;
+  const handleAddToQueue = useCallback((id) => {
+    playerSetQueue((prev) => {
+      const current = currentSongId ? [currentSongId] : [];
       const baseQ = prev || current;
       if (baseQ.includes(id)) return prev; // Avoid duplicate queue insertions
       return [...baseQ, id];
     });
-  };
+  }, [playerSetQueue, currentSongId]);
 
   // Determine whether to show small cards view or detailed table list
   const isGridView = !!selectedArtist || activeGenre !== "All";
@@ -369,17 +366,14 @@ function HomeView({
             </div>
           ) : (
             <SongGrid
-              songs={pagedHomeSongs}
+              songs={homeSongs}
               activeSongId={player.currentSong?.id}
               isPlaying={player.isPlaying}
               onPlay={onPlaySong}
-              currentPage={homePage}
-              totalPages={homeTotalPages}
-              onPageChange={onHomePageChange}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}
               onAddToQueue={handleAddToQueue}
-              startIndex={(homePage - 1) * SONGS_PER_PAGE}
+              startIndex={0}
               layoutMode={selectedArtist || activeGenre !== "All" ? "grid-simple" : "grid-flip"}
             />
           )}

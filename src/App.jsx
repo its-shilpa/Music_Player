@@ -103,7 +103,6 @@ export default function App() {
 
   const [activeGenre, setActiveGenre] = useState("All");
   const [selectedArtist, setSelectedArtist] = useState(null);
-  const [homePage, setHomePage] = useState(1);
   const [relatedPage, setRelatedPage] = useState(1);
 
   // Debounced search: fetch from iTunes API 400ms after user finishes typing
@@ -134,22 +133,6 @@ export default function App() {
       return genreMatch && artistMatch;
     });
   }, [songs, activeGenre, selectedArtist]);
-
-  const homeTotalPages = useMemo(() => {
-    return Math.ceil(homeSongs.length / SONGS_PER_PAGE) || 1;
-  }, [homeSongs.length]);
-
-  const pagedHomeSongs = useMemo(() => {
-    return homeSongs.slice(
-      (homePage - 1) * SONGS_PER_PAGE,
-      homePage * SONGS_PER_PAGE
-    );
-  }, [homeSongs, homePage]);
-
-  // Reset browse view back to page 1 on filter changes
-  useEffect(() => {
-    setHomePage(1);
-  }, [searchQuery, activeGenre, selectedArtist]);
 
   // ── Derived States: Related songs list on player screen ─────
   const relatedSongs = useMemo(() => {
@@ -362,10 +345,6 @@ export default function App() {
               selectedArtist={selectedArtist}
               onArtistChange={setSelectedArtist}
               homeSongs={homeSongs}
-              pagedHomeSongs={pagedHomeSongs}
-              homePage={homePage}
-              homeTotalPages={homeTotalPages}
-              onHomePageChange={setHomePage}
               darkMode={darkMode}
               onToggleDarkMode={handleToggleDarkMode}
               player={player}

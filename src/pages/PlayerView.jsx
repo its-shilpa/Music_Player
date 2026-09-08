@@ -3,7 +3,7 @@
 // Uses an asymmetric split layout: left column contains the glowing artwork,
 // right column embeds details, progress sliders, a waveform, and controls.
 
-import { useState, useRef, useEffect, memo } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { Heart, ListMusic, Home, Sun, Moon, ListPlus, Sparkles } from "lucide-react";
 import { makeFallbackSVG } from "../utils/fallbackArt";
 import { getLyricsForSong } from "../utils/lyricsProvider";
@@ -82,14 +82,16 @@ function PlayerView({
   const nextSongs = nextIds.map(id => songs.find(s => s.id === id)).filter(Boolean);
 
   // Helper to add a song to the current play queue
-  const handleAddToQueue = (id) => {
-    player.setQueue((prev) => {
-      const current = player.currentSong ? [player.currentSong.id] : [];
+  const playerSetQueue = player.setQueue;
+  const currentSongId = player.currentSong?.id;
+  const handleAddToQueue = useCallback((id) => {
+    playerSetQueue((prev) => {
+      const current = currentSongId ? [currentSongId] : [];
       const baseQ = prev || current;
       if (baseQ.includes(id)) return prev;
       return [...baseQ, id];
     });
-  };
+  }, [playerSetQueue, currentSongId]);
 
   return (
     <div className="player-view">
@@ -177,6 +179,7 @@ function PlayerView({
                   src={player.imgSrc || makeFallbackSVG(song.name, song.color)}
                   onError={() => player.setImgSrc(makeFallbackSVG(song.name, song.color))}
                   alt={song.name}
+                  decoding="async"
                 />
               </div>
             </div>
@@ -285,7 +288,12 @@ function PlayerView({
                       >
                         <span className="up-next-num">{idx + 1}</span>
                         <div className="up-next-thumb">
-                          <img src={ns.image || makeFallbackSVG(ns.name, ns.color)} alt={ns.name} />
+                          <img
+                            src={ns.image || makeFallbackSVG(ns.name, ns.color)}
+                            alt={ns.name}
+                            loading="lazy"
+                            decoding="async"
+                          />
                         </div>
                         <div className="up-next-info">
                           <div className="up-next-name">{ns.name}</div>

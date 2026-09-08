@@ -1,26 +1,31 @@
 // src/components/SongThumb.jsx
 // A single <img> that shows a song's cover art, and silently swaps to the
 // generated SVG fallback if the real image URL 404s or fails to load.
-import { useState, useEffect } from "react";
+// Optimized with React.memo, lazy loading, and async decoding for smooth 60fps scrolling.
+import { useState, useEffect, useMemo, memo } from "react";
 import { makeFallbackSVG } from "../utils/fallbackArt";
 
-export default function SongThumb({ song, className = "" }) {
-  const fallback = makeFallbackSVG(song.name, song.color);
-  const [src, setSrc] = useState(song.image || fallback);
+function SongThumb({ song, className = "" }) {
+  const fallback = useMemo(() => {
+    return makeFallbackSVG(song?.name, song?.color);
+  }, [song?.name, song?.color]);
 
-  // If the song prop changes (e.g. user picked a different song), reset
-  // back to the real image before trying the fallback again.
+  const [src, setSrc] = useState(song?.image || fallback);
+
   useEffect(() => {
-    setSrc(song.image || fallback);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [song.image, song.name, song.color]);
+    setSrc(song?.image || fallback);
+  }, [song?.image, fallback]);
 
   return (
     <img
       src={src}
-      alt={song.name}
+      alt={song?.name || "Track Artwork"}
       className={className}
-      onError={() => setSrc(makeFallbackSVG(song.name, song.color))}
+      loading="lazy"
+      decoding="async"
+      onError={() => setSrc(fallback)}
     />
   );
 }
+
+export default memo(SongThumb);

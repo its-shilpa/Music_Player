@@ -2,7 +2,7 @@
 // Dedicated Favorites Page. Lists all tracks the user has marked as favorites.
 // Integrates play commands, toggle favorite triggers, and clear/empty state screens.
 
-import { memo, useMemo } from "react";
+import { memo, useMemo, useCallback } from "react";
 import { Heart, Compass, Home } from "lucide-react";
 import Navbar from "../components/Navbar";
 import SongGrid from "../components/SongGrid";
@@ -29,22 +29,24 @@ function FavoritesView({
   }, [favorites, songs]);
 
   // Play favorites track, populating the queue with all favorited songs
-  const playFavoriteTrack = (id) => {
+  const playFavoriteTrack = useCallback((id) => {
     player.playFromQueue(
       id,
       favoriteSongs.map((s) => s.id)
     );
-  };
+  }, [player, favoriteSongs]);
 
   // Helper to add a song to the current play queue
-  const handleAddToQueue = (id) => {
-    player.setQueue((prev) => {
-      const current = player.currentSong ? [player.currentSong.id] : [];
+  const playerSetQueue = player.setQueue;
+  const currentSongId = player.currentSong?.id;
+  const handleAddToQueue = useCallback((id) => {
+    playerSetQueue((prev) => {
+      const current = currentSongId ? [currentSongId] : [];
       const baseQ = prev || current;
       if (baseQ.includes(id)) return prev;
       return [...baseQ, id];
     });
-  };
+  }, [playerSetQueue, currentSongId]);
 
   return (
     <div className="home-view">
@@ -108,9 +110,6 @@ function FavoritesView({
               activeSongId={player.currentSong?.id}
               isPlaying={player.isPlaying}
               onPlay={playFavoriteTrack}
-              currentPage={1}
-              totalPages={1}
-              onPageChange={() => {}}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}
               onAddToQueue={handleAddToQueue}

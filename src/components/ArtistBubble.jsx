@@ -36,6 +36,8 @@ function ArtistBubble({ artist, onClick }) {
           src={photoSrc}
           alt={artist.name}
           className="artist-photo"
+          loading="lazy"
+          decoding="async"
           onError={() => setPhotoSrc(makeArtistFallbackSVG(artist.name, artist.color))}
         />
       </div>
