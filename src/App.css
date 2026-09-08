@@ -5005,13 +5005,13 @@ body {
 
   .gemini-modal-overlay {
     padding: 12px 10px 0;
-    align-items: flex-end;
+    align-items: center;
   }
 
   .gemini-floating-panel {
     max-height: 94vh;
     height: 94vh;
-    border-radius: 22px 22px 0 0;
+    border-radius: 22px;
     width: 100%;
   }
 
@@ -5346,7 +5346,7 @@ html, body {
   .gemini-floating-panel {
     max-height: 96vh !important;
     height: 90vh !important;
-    border-radius: 20px 20px 0 0 !important;
+    border-radius: 20px !important;
     border-bottom: none !important;
   }
 
