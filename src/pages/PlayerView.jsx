@@ -11,6 +11,8 @@ import ProgressBar from "../components/ProgressBar";
 import Waveform from "../components/Waveform";
 import PlayerControls from "../components/PlayerControls";
 import SongGrid from "../components/SongGrid";
+import MiniPlayer from "../components/MiniPlayer";
+
 
 function PlayerView({
   player,
@@ -30,6 +32,7 @@ function PlayerView({
   onOpenQueue,
   onGoToFavorites,
   onOpenGemini,
+  onOpenPlayer,
 }) {
   const song = player.currentSong;
   if (!song) return null;
@@ -77,9 +80,19 @@ function PlayerView({
   }, [activeLineIndex]);
 
   const queueIds = player.queue || [];
-  const currentPos = queueIds.indexOf(song.id);
+  const currentPos = queueIds.findIndex((qid) => String(qid) === String(song.id));
   const nextIds = currentPos !== -1 ? queueIds.slice(currentPos + 1, currentPos + 6) : [];
-  const nextSongs = nextIds.map(id => songs.find(s => s.id === id)).filter(Boolean);
+  const nextSongs = nextIds.map(id => songs.find(s => String(s.id) === String(id))).filter(Boolean);
+
+  // Helper to immediately start playing a song clicked from Up Next list
+  const handlePlayUpNextSong = useCallback((id) => {
+    if (player.playSong) {
+      player.playSong(id);
+    } else {
+      player.setSongIndex(id);
+      player.setIsPlaying(true);
+    }
+  }, [player]);
 
   // Helper to add a song to the current play queue
   const playerSetQueue = player.setQueue;
@@ -284,7 +297,7 @@ function PlayerView({
                       <div 
                         key={ns.id} 
                         className="up-next-item" 
-                        onClick={() => player.setSongIndex(ns.id)}
+                        onClick={() => handlePlayUpNextSong(ns.id)}
                       >
                         <span className="up-next-num">{idx + 1}</span>
                         <div className="up-next-thumb">
@@ -345,6 +358,21 @@ function PlayerView({
 
         <div className="home-footer site-container">MusePlay • Redesigned Premium Web Interface • {songsCount} tracks loaded</div>
       </div>
+
+      {/* Pinned Bottom Mini Player */}
+      {player.currentSong && (
+        <MiniPlayer
+          song={player.currentSong}
+          isPlaying={player.isPlaying}
+          progress={player.progress}
+          onOpenPlayer={onOpenPlayer}
+          onPrev={player.prevSong}
+          onTogglePlay={() => player.setIsPlaying((p) => !p)}
+          onNext={player.nextSong}
+          volume={player.volume}
+          onVolumeChange={player.setVolume}
+        />
+      )}
     </div>
   );
 }

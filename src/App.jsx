@@ -425,7 +425,14 @@ export default function App() {
             songs={songs}
             queue={player.queue || songs.map((s) => s.id)}
             currentSongId={player.songIndex}
-            onPlaySong={(id) => player.setSongIndex(id)}
+            onPlaySong={(id) => {
+              if (player.playSong) {
+                player.playSong(id);
+              } else {
+                player.setSongIndex(id);
+                player.setIsPlaying(true);
+              }
+            }}
             onRemoveSong={removeFromQueue}
             onClearQueue={clearQueue}
           />

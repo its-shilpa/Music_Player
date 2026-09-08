@@ -56,7 +56,7 @@ export function useAudioPlayer(songs) {
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
   useEffect(() => { queueRef.current = queue; }, [queue]);
 
-  const currentSong = playingSong || songs.find((s) => s.id === songIndex) || null;
+  const currentSong = songs.find((s) => String(s.id) === String(songIndex)) || playingSong || null;
 
   // "queue" and "songIndex" both store SONG IDS (not array positions) -
   // iTunes ids are arbitrary large numbers, unlike your old hardcoded
@@ -147,28 +147,38 @@ export function useAudioPlayer(songs) {
 
     // Cache the playing song object
     const list = songsRef.current;
-    const found = list.find((s) => s.id === songIndex);
+    const found = list.find((s) => String(s.id) === String(songIndex));
     if (found) {
       setPlayingSong(found);
     }
 
-    const songToPlay = found || playingSong || songs.find((s) => s.id === songIndex);
+    const songToPlay = found || songs.find((s) => String(s.id) === String(songIndex)) || playingSong;
     if (!songToPlay) return;
 
     audio.pause();
-    audio.src = songToPlay.preview;
-    audio.load();
+    if (audio.src !== songToPlay.preview) {
+      audio.src = songToPlay.preview;
+      audio.load();
+    }
     setProgress(0);
     setCurrentTime(0);
     setDuration(0);
     setImgSrc(songToPlay.image);
+
     if (isPlayingRef.current) {
-      const onCanPlay = () => {
+      const playAudio = () => {
         audio.play().catch(() => {});
-        audio.removeEventListener("canplay", onCanPlay);
       };
-      audio.addEventListener("canplay", onCanPlay);
-      return () => audio.removeEventListener("canplay", onCanPlay);
+      if (audio.readyState >= 2) {
+        playAudio();
+      } else {
+        const onCanPlay = () => {
+          playAudio();
+          audio.removeEventListener("canplay", onCanPlay);
+        };
+        audio.addEventListener("canplay", onCanPlay);
+        return () => audio.removeEventListener("canplay", onCanPlay);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [songIndex]);
@@ -199,10 +209,30 @@ export function useAudioPlayer(songs) {
     if (audio) audio.volume = volume;
   }, [volume]);
 
+  // Start playing a specific song id immediately
+  const playSong = useCallback((id) => {
+    const list = songsRef.current;
+    const found = list.find((s) => String(s.id) === String(id));
+    if (found) {
+      setPlayingSong(found);
+    }
+    songIndexRef.current = id;
+    isPlayingRef.current = true;
+    setSongIndex(id);
+    setIsPlaying(true);
+  }, []);
+
   // Start playing a specific song id, using the given ordered id list as
   // the "up next" queue.
   const playFromQueue = useCallback((id, orderedIds) => {
     setQueue(orderedIds);
+    const list = songsRef.current;
+    const found = list.find((s) => String(s.id) === String(id));
+    if (found) {
+      setPlayingSong(found);
+    }
+    songIndexRef.current = id;
+    isPlayingRef.current = true;
     setSongIndex(id);
     setIsPlaying(true);
   }, []);
@@ -227,6 +257,7 @@ export function useAudioPlayer(songs) {
     nextSong,
     prevSong,
     seek,
+    playSong,
     playFromQueue,
     queue,
     setQueue,

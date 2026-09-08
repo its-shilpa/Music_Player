@@ -64,6 +64,18 @@
   .home-footer{
     text-align: center;
   }
+  .section-title, .volume-percentage{
+    color: #000;
+  }
+  .player-back-btn span{
+    color: rgb(112, 108, 108);
+  }
+}
+
+.app.light .featured-badge {
+  color: color-mix(in srgb, var(--accent) 60%, #12121d 40%);
+  background: rgba(var(--accent-rgb), 0.16);
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
 }
 
 .home-footer {
