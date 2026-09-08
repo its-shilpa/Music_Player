@@ -5345,7 +5345,7 @@ html, body {
 
   .gemini-floating-panel {
     max-height: 96vh !important;
-    height: 96vh !important;
+    height: 90vh !important;
     border-radius: 20px 20px 0 0 !important;
     border-bottom: none !important;
   }
