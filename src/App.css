@@ -4948,11 +4948,11 @@ body {
 
 /* Narrow Mobile: otherwise 1 column */
 @media (max-width: 340px) {
-  .song-card-grid {
+  /* .song-card-grid {
     grid-template-columns: 1fr !important;
     gap: 10px !important;
     padding: 4px 0 14px !important;
-  }
+  } */
   .song-card-front-title,
   .song-card-back-title {
     font-size: 11px !important;
