@@ -533,8 +533,16 @@ body {
   box-sizing: border-box;
 }
 
+@media(min-width: 1280px) {
 .desktop-unique{
   width: 95% !important;
+}
+}
+
+@media(min-width: 600px) {
+.desktop-unique{
+  width: 93% !important;
+}
 }
 
 .section-block {
