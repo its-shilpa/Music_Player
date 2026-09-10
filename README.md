@@ -1,6 +1,6 @@
 # 🎵 MusePlay
 
-A modern music streaming web app built with React, featuring an AI-powered mood DJ (Gemini) that curates personalized playlists from a natural-language prompt.
+A modern music streaming web app built with React, featuring an AI-powered mood DJ (Gemini) that curates personalized playlists from a natural-language prompt from ai.
 
 **Live Site:** [reactjs-musicapp.netlify.app](https://reactjs-musicapp.netlify.app/)
 **Backend API:** [museplay-ai-server.onrender.com](https://museplay-ai-server.onrender.com/)
