@@ -86,6 +86,7 @@ VITE_API_URL=http://localhost:3001
 ```
 
 **Backend** — create a `.env` file inside `server/`:
+
 ```
 GEMINI_API_KEY=your-key-here
 ```
