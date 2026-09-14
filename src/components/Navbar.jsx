@@ -72,6 +72,7 @@ function Navbar({
         </span>
         <span className="brand-name">MusePlay</span>
       </div>
+      
 
       {/* Controlled Search Box with suggestions dropdown */}
       <div className="home-search-container" ref={searchContainerRef}>
