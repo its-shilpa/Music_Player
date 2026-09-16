@@ -61,6 +61,7 @@ function Navbar({
     if (onGoHome) onGoHome();
     if (onClearSearch) onClearSearch();
   };
+  
 
   return (
     <nav className="home-nav">
