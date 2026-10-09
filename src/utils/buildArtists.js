@@ -1,4 +1,4 @@
-// src/utils/buildArtists.js file
+// src/utils/buildArtists.js
 // Takes the flat song list and derives a de-duplicated, sorted artist list
 // (most songs first) for the "Artists" row. Attaches a dynamic image from their tracks.
 
